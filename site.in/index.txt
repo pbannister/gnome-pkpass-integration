@@ -1,23 +1,59 @@
-<h1>Project status</h1>
+<h1>GNOME PKPASS Integration</h1>
 
 <p>
-Aim of this project is to provide a common project skeleton.
-Should capture best practice in working with an LLM (asked of an LLM).
-Also capture practice from personal experience.
-With each project derived from this skeleton, aim to incorporate lessons learned.
+Aim of this project is to make an Apple Wallet pass a first-class file on the
+GNOME desktop.
+A <code>.pkpass</code> is a ZIP built by an issuer: <code>pass.json</code>
+describes the pass, <code>manifest.json</code> records a SHA-1 digest for every
+member, and <code>signature</code> carries a detached PKCS#7 signature over the
+manifest.
+A stock Linux desktop has nothing registered for the format, so a downloaded
+pass is an opaque file.
 </p>
 <p>
-The skeleton is aimed at projects as part of a larger <b>homelab</b> project.
-There is a website associated with the homelab.
-Projects pages are published to the common homelab website.
+This project reads the pass, checks it, draws it, and registers itself as the
+application that opens it.
+Everything the desktop does is also available on the command line, and every
+change the tool makes to the desktop can be reversed.
 </p>
-<p>
-There are still some rough spots.
-Have not <i>entirely</i> sorted records, episodes, phases, or tasks - but seems a good start.
-</p>
-<p>
-The set of prompts inform and constrain the LLM well enough to produce result that I find acceptable.
-</p>
+
+<h2>What it does</h2>
+
+<ul>
+  <li><code>pkpass-inspect</code> reports the container, the pass, its fields,
+      its barcodes, its locations, and its images, and checks the manifest
+      digests and the signature.</li>
+  <li><code>pkpass-render</code> draws the pass as one standalone SVG card,
+      carrying the pass's own colours and logo.</li>
+  <li><code>pkpass-integrate handler install</code> makes
+      <code>application/vnd.apple.pkpass</code> and
+      <code>application/vnd.apple.pkpasses</code> open with this project,
+      installs the file-type icon, and records what opened them before.</li>
+  <li><code>pkpass-integrate handler uninstall</code> puts the previous handlers
+      back and removes what the install wrote.</li>
+</ul>
 
 <h2>Status</h2>
 
+<p>
+Phases 1 through 3 are complete: the reader, the renderer, the MIME handler, and
+the command-line tools exist, and the test suite passes.
+Phase 4, publishing the pages and a release, has started.
+</p>
+<p>
+The barcode is not yet drawn as a scannable symbol: this project has no QR or
+PDF417 encoder, so the card shows the barcode's format, its alt text, and its
+payload rather than a code that might not scan.
+The GTK4 viewer is built only where the GTK4 development files are present.
+Both limitations are recorded in <code>TODO.md</code>.
+</p>
+
+<h2>A note on examples</h2>
+
+<p>
+A real pass belongs to a person: it carries a name, an identifier, and a barcode
+payload.
+The example this project was built from is not published.
+The fixture the tests use is synthetic and structurally real, and every value in
+it is invented.
+</p>

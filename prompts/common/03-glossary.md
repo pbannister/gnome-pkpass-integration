@@ -157,3 +157,35 @@ authoritative file; the glossary never states a rule.
 ## Stability rules
 
 - Project behavior that should not change without explicit instruction.
+
+## How this project does it
+
+- `PKPASS` — an Apple Wallet pass bundle: a ZIP holding `pass.json`,
+  `manifest.json`, `signature`, and the pass images.
+  - The format: `documents/08-pkpass-format.md`.
+- `Pass style` — the one of `generic`, `storeCard`, `coupon`, `eventTicket`, or
+  `boardingPass` that a pass declares, which decides how its fields are laid
+  out.
+  - The model: `sources/pkpass/pass_model.h`; the requirements:
+  `prompts/features/03-pkpass-reader.md`.
+- `Field group` — one of `headerFields`, `primaryFields`, `secondaryFields`,
+  `auxiliaryFields`, or `backFields`, the named lists a pass style carries.
+  - The requirements: `prompts/features/03-pkpass-reader.md`.
+- `Manifest` — the `manifest.json` member of a pass, mapping each other member
+  to its lowercase-hex SHA-1 digest.
+  - The requirements: `prompts/features/03-pkpass-reader.md`.
+- `Detached signature` — the `signature` member of a pass: a DER PKCS#7/CMS
+  structure over the bytes of `manifest.json`, not over the whole archive.
+  - The requirements: `prompts/features/03-pkpass-reader.md`.
+- `Handler` — the desktop entry that opens a file type, and the record of what
+  this project wrote to install it.
+  - The requirements: `prompts/features/05-pkpass-handler.md`.
+- `MIME definition` — the shared-mime-info XML that names a type, its glob, its
+  magic, and its icon.
+  - The requirements: `prompts/features/05-pkpass-handler.md`; the mechanism:
+  `documents/09-mime-type-association.md`.
+- `Install record` — the `key=value` file under the project's XDG state
+  directory that lists what a handler install wrote and what it displaced, and
+  which an uninstall reads.
+  - The requirements: `prompts/features/05-pkpass-handler.md`.
+

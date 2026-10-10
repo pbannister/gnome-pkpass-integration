@@ -5,9 +5,10 @@ Live state from the owning host, captured by <code>scripts/site-state-fetch.sh</
 (<code>make state</code>) and substituted into this page at build time. The
 values are <code>__KEY__</code> placeholders; a key with no value renders as
 <code>unavailable</code>, so the pages still build on a host where the project
-is not installed. A real project extends the fetch script with the values its
-dashboard shows. See <code>documents/06-project-pages.md</code>.
+is not installed. See <code>documents/06-project-pages.md</code>.
 </p>
+
+<h2>Build state</h2>
 
 <table>
   <tr><th>Key</th><th>Value</th></tr>
@@ -15,5 +16,25 @@ dashboard shows. See <code>documents/06-project-pages.md</code>.
   <tr><td>Host</td><td>__HOST__</td></tr>
   <tr><td>Branch</td><td>__BRANCH__</td></tr>
   <tr><td>Commit</td><td>__COMMIT__</td></tr>
-  <tr><td>Example with no value</td><td>__EXAMPLE_UNSET__</td></tr>
+</table>
+
+<h2>What a pass must contain</h2>
+
+<table>
+  <tr><th>Member</th><th>What it is</th></tr>
+  <tr><td><code>pass.json</code></td><td>the pass itself: its type, its serial number, its style, and its fields</td></tr>
+  <tr><td><code>manifest.json</code></td><td>a SHA-1 digest for every other member except the signature</td></tr>
+  <tr><td><code>signature</code></td><td>a detached PKCS#7 signature over the manifest bytes</td></tr>
+  <tr><td><code>icon.png</code></td><td>the pass icon, with its 2x and 3x copies</td></tr>
+</table>
+
+<h2>What the handler writes</h2>
+
+<table>
+  <tr><th>Path under <code>$XDG_DATA_HOME</code></th><th>What it is</th></tr>
+  <tr><td><code>mime/packages/pkpass.xml</code></td><td>the definition of both Wallet types</td></tr>
+  <tr><td><code>applications/pkpass-handler.desktop</code></td><td>the handler entry</td></tr>
+  <tr><td><code>icons/hicolor/scalable/apps/pkpass-handler.svg</code></td><td>the handler icon</td></tr>
+  <tr><td><code>icons/hicolor/scalable/mimetypes/</code></td><td>the file icon for each type</td></tr>
+  <tr><td><code>gnome-pkpass-integration/pkpass-handler.manifest</code></td><td>the record an uninstall reads</td></tr>
 </table>
