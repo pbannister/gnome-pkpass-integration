@@ -91,3 +91,16 @@ are kept as they are.
   install scripts, and the project's own README, TODO, and PHASES.
 - The commit that adds this record is separate, per `records/README.md`, and
   cites the work commit above rather than itself.
+
+## Corrections
+
+- 2026-10-10 — The final drift check against the skeleton found two shared-file
+  violations (an extended `tests/README.md`, which is byte-checked, and a
+  mid-file edit to `documents/README.md`, which is append-only) and a Makefile
+  missing the `status`, `maturity`, and `all` targets that `AGENTS.md` and
+  `scripts/prompt-maturity.sh` name. Commit `87b7807` restores the two shared
+  files, moves the project's test notes into this project's `README.md`, lists
+  the new documents in an appended project section, and restores the targets.
+  `scripts/skeleton-diff.sh` then reports 0 drift, and `make status` and
+  `make maturity` work.
+
