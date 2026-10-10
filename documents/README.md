@@ -14,8 +14,6 @@ The LLM does not load these files as project rules.
 - `05-lessons-from-MI25.md` — lessons from the MI25 fan-service project.
 - `06-project-pages.md` — project-pages publishing conventions (summary; canonical version in the homelab).
 - `07-prompt-maturity.md` — the 0–3 maturity rubric for the prompt protocol, and how to score it.
-- `08-pkpass-format.md` — the Apple Wallet `.pkpass` format: the container, `pass.json`, the field model, the colours, the barcode formats, and what this project does with them.
-- `09-mime-type-association.md` — how a Linux desktop resolves a file type to an application, and exactly what this project writes to handle the Wallet types.
 
 ## Canonical Files
 
@@ -32,7 +30,11 @@ The following filenames are canonical and must not be renamed or duplicated with
 
 ## How this project does it
 
-- `08-pkpass-format.md` and `09-mime-type-association.md` are this project's own
-  research records; the skeleton's documents `00` through `07` are kept as they
-  are.
+- `08-pkpass-format.md` — the Apple Wallet `.pkpass` format: the container,
+  `pass.json`, the field model, the colours, the barcode formats, localization,
+  and what this project does and does not yet do with them.
+- `09-mime-type-association.md` — how a Linux desktop resolves a file type to
+  an application, and exactly what this project writes to handle the two Wallet
+  types.
+- Documents `00` through `07` are the skeleton's, kept as they are.
 

@@ -32,25 +32,3 @@
 The following filenames are canonical and must not be renamed or duplicated without an explicit task:
 
 - `lib/test_helpers.sh`
-
-## How this project does it
-
-- `tests/lib/test_helpers.sh` also carries `build_program` (configure and build
-  the C++ tools when a test needs them) and `build_synthetic_pkpass` (zip
-  `dataflow.in/pkpass/sample/` into a `.pkpass`, storing the PNGs and deflating
-  the JSON the way Apple's own builds do).
-- The bands this project uses: `14`–`15` for the SHA-1 and JSON readers, `30`–`31`
-  for the ZIP and pkpass readers, `40` for the renderer, `60` for the
-  command-line tools, and `90` for the handler install and uninstall.
-- The C++ unit tests live here too (`tests/*_test.cpp`, `tests/test_harness.h`).
-  `sources/CMakeLists.txt` builds them into `dataflow.out/build/`, and a shell
-  test builds the fixture and runs the program; a C++ test exits nonzero when a
-  check failed.
-- The fixture is synthetic on purpose: a real pass belongs to a person. The
-  format-shaped sample under `dataflow.in/pkpass/sample/` gives the tests a pass
-  that is structurally real and nobody's.
-- The handler test is the one that needs a real desktop too: it runs the whole
-  install and uninstall with `HOME` and the XDG paths pointed at a throwaway
-  directory, so it exercises `xdg-mime`, `update-mime-database`, and the icon
-  cache without touching the machine's own desktop.
-

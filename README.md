@@ -117,6 +117,19 @@ define the type and its definition is not this project's to lose.
 The C++ build uses CMake with the highest warning level and treats warnings as
 errors.
 
+The tests follow the skeleton's reserved bands: `14`–`15` for the SHA-1 and JSON
+readers, `30`–`31` for the ZIP and pass readers, `40` for the renderer, `60` for
+the command-line tools, and `90` for the handler install and uninstall.
+The C++ unit tests (`tests/*_test.cpp`, `tests/test_harness.h`) are built by
+`sources/CMakeLists.txt` and run by a shell test, which also builds the fixture;
+`tests/lib/test_helpers.sh` carries `build_program` and `build_synthetic_pkpass`.
+The fixture is synthetic on purpose: a real pass belongs to a person, so the
+format-shaped sample under `dataflow.in/pkpass/sample/` gives the tests a pass
+that is structurally real and nobody's.
+The handler test points `HOME` and the XDG paths at a throwaway directory, so it
+exercises `xdg-mime`, `update-mime-database`, and the icon cache without
+touching this machine's own desktop.
+
 ## Source Layout
 
 - `sources/crypto/` contains SHA-1, which is the digest a pass manifest records.

@@ -3,15 +3,18 @@
 #
 #	This Makefile is the human-facing driver.
 #	Each rule calls the appropriate tool instead of reimplementing work:
-#		build:  sh scripts/program-build.sh (readers and command-line tools)
+#		all:    the project's primary artifact (the programs)
+#		build:  sh scripts/program-build.sh (readers, renderer, and tools)
 #		        The build tree is written to dataflow.out/build/.
 #		site:   sh scripts/site-state-fetch.sh (live state, owning host)
 #		        sh scripts/site-build.sh + sh scripts/site-condense.sh
 #		        then sh scripts/leak-gate.sh site.out (the project-side
 #		        sanitization check; the homelab re-runs its own at publish)
 #		        (the standard page set; see prompts/features/02-project-pages.md)
-#		check:  sh scripts/leak-gate.sh site.out (the gate alone)
 #		state:  sh scripts/site-state-fetch.sh (refresh the live-state file only)
+#		status: sh scripts/status.sh (phase, next TODO, last test run, tree)
+#		maturity: sh scripts/prompt-maturity.sh (the prompt rubric, self-assessment)
+#		check:  sh scripts/leak-gate.sh site.out (the gate alone)
 #		clean:  remove generated output, including the path-bound build tree
 #		test:   npm test
 #		deploy: RETIRED - all publishing to labs.bannister.us goes through
@@ -24,11 +27,19 @@
 #		        publishes)
 #
 
+all: build
+
 build:
 	sh scripts/program-build.sh
 
 state:
 	sh scripts/site-state-fetch.sh
+
+status:
+	sh scripts/status.sh
+
+maturity:
+	sh scripts/prompt-maturity.sh
 
 site:
 	sh scripts/site-state-fetch.sh
@@ -60,4 +71,4 @@ release:
 	sh scripts/release-gate.sh "$$(cat dataflow.out/build/VERSION)"
 	sh scripts/release-package.sh
 
-.PHONY: build site state check clean test deploy install release
+.PHONY: all build site state status maturity check clean test deploy install release
