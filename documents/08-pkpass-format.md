@@ -2,6 +2,7 @@
 
 A `.pkpass` file is an Apple Wallet pass: a ZIP archive whose `pass.json` describes a pass, whose `manifest.json` records a SHA-1 digest per member, and whose `signature` carries a detached PKCS#7 signature over the manifest.
 This document is the format reference for the readers in this project, and its findings were checked on 2026-10-10 against the sources at the end.
+It states what the format is; `documents/10-pkpass-knowns-and-unknowns.md` is its companion, and states how far each statement here can be trusted — which parts Apple documents, which were observed, which are only convention, and which are unknown.
 Every example uses the repository's synthetic fixture in `dataflow.in/pkpass/sample/` or an invented neutral value; no value from a real person's pass appears here.
 
 ## The Container

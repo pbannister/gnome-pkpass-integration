@@ -170,6 +170,7 @@ The format research the readers implement is recorded in `documents/`.
 
 - `documents/08-pkpass-format.md` — the `.pkpass` container, `pass.json`, the field model, the colours, the barcode formats, localization, and what this project does and does not yet do with them.
 - `documents/09-mime-type-association.md` — how the desktop resolves a file type to an application, and exactly what this project writes to become the handler for the Wallet types.
+- `documents/10-pkpass-knowns-and-unknowns.md` — what is documented, observed, and only conventional about the format, what is unknown, and what cannot be known without Apple hardware.
 
 ## For Human Contributors
 

@@ -36,5 +36,8 @@ The following filenames are canonical and must not be renamed or duplicated with
 - `09-mime-type-association.md` — how a Linux desktop resolves a file type to
   an application, and exactly what this project writes to handle the two Wallet
   types.
+- `10-pkpass-knowns-and-unknowns.md` — what is documented, observed, and only
+  conventional about the format, what is genuinely unknown, and which decisions
+  this project made where the format is silent.
 - Documents `00` through `07` are the skeleton's, kept as they are.
 

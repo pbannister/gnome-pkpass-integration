@@ -7,3 +7,4 @@
 - `05-command-line-tools-implement.md` — Implement the Command-Line Tools feature.
 - `06-install-registers-handler-implement.md` — Make the installer register the handler.
 - `07-barcode-links-and-payload-implement.md` — Draw the barcode, format the payload, and link the URLs.
+- `08-pkpass-knowns-and-unknowns-document.md` — Document what is known and unknown about the format.
