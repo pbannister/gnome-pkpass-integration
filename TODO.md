@@ -2,6 +2,12 @@
 
 ## Open Questions
 
+* [ ] decide whether `scripts/install.sh`, the release installer, should
+      register the handler as `make install` now does.
+      — The owner's instruction named `make install`; the release path takes a
+      tarball and prints the integration step instead. Making the two consistent
+      would also mean revisiting `tests/11-release-install.sh`, whose demo
+      tarball carries no `pkpass-integrate` to register with.
 * [ ] encode a barcode symbol so `pkpass-render` draws a scannable code rather
       than the payload text.
       — A QR encoder is the largest missing piece of a pass viewer, and the
