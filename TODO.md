@@ -32,10 +32,20 @@
       the files on disk, as the AppImage project's `audit` does.
 * [ ] write the episode plan for phases 3 and 4 in
       `prompts/episodes/02-episode-plan.md`.
-* [ ] register the project pages with the homelab (`pages_source`) and publish.
 
 ## Recently Completed
 
+* [x] register the project pages with the homelab and publish them (2026-10-10):
+    * [x] registered as `gnome-pkpass-integration` in the homelab's
+          `sources/projects.yaml` with `self_published: true` and a
+          `pages_source` of this project's `site.out/`; the homelab owns the
+          navigation and the publish, and this project pushes nothing.
+    * [x] the standard page set plus 56 normalized full-text pages are live at
+          <https://labs.bannister.us/projects/gnome-pkpass-integration/>, with
+          every page carrying the one homelab nav.
+    * [x] the registry validates (29 projects) and the homelab's project-pages
+          test reports this project OK on the standard page set and the leak
+          gate.
 * [x] draw the barcode, format the payload, and link the URLs (2026-10-10; owner
       instruction):
     * [x] a QR encoder written from ISO/IEC 18004: byte mode, level M, versions 1
