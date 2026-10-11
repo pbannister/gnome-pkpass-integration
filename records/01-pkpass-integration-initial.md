@@ -103,4 +103,19 @@ are kept as they are.
   the new documents in an appended project section, and restores the targets.
   `scripts/skeleton-diff.sh` then reports 0 drift, and `make status` and
   `make maturity` work.
+- 2026-10-10 — **The "not verified" note above is now out of date, in the
+  project's favour.** The GTK4 development files were installed on the build
+  host after this record was written, so `pkpass-viewer` builds; its source
+  compiles clean under the project's warning flags, which had never happened
+  before. Commit `5691c5c` adds `tests/95-viewer.sh`, which starts a private
+  Xvfb display and checks the window title and WM class through the X server:
+  the fixture opens a 460×640 window titled `Example Wallet Pass` carrying the
+  `pkpass-viewer` WM class that the handler entry names in `StartupWMClass`,
+  `pkpass-integrate handle` puts the same window up, and a file that is not a
+  pass opens an explanatory window rather than exiting silently. `make test` is
+  now 22 tests, all passing, and the viewer is exercised by `make test` wherever
+  GTK4 and Xvfb are present (it skips cleanly where they are not). The caveat
+  that remains is the one recorded in `TODO.md`: the window uses the desktop
+  theme rather than the pass's own colours.
+
 
