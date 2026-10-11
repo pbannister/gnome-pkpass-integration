@@ -19,3 +19,4 @@ __pycache__/
 
 # An accidental in-source build directory (builds belong in dataflow.out/build).
 build/
+.vscode/
