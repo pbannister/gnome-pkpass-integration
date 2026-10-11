@@ -40,4 +40,3 @@ The following filenames are canonical and must not be renamed or duplicated with
   conventional about the format, what is genuinely unknown, and which decisions
   this project made where the format is silent.
 - Documents `00` through `07` are the skeleton's, kept as they are.
-

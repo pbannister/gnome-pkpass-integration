@@ -14,6 +14,8 @@
 #		state:  sh scripts/site-state-fetch.sh (refresh the live-state file only)
 #		status: sh scripts/status.sh (phase, next TODO, last test run, tree)
 #		maturity: sh scripts/prompt-maturity.sh (the prompt rubric, self-assessment)
+#		context: sh scripts/context-budget.sh (the always-loaded context against
+#		        the budget prompts/02-workflow.md declares)
 #		check:  sh scripts/leak-gate.sh site.out (the gate alone)
 #		clean:  remove generated output, including the path-bound build tree
 #		test:   npm test
@@ -43,6 +45,9 @@ status:
 
 maturity:
 	sh scripts/prompt-maturity.sh
+
+context:
+	sh scripts/context-budget.sh
 
 site:
 	sh scripts/site-state-fetch.sh
@@ -74,4 +79,4 @@ release:
 	sh scripts/release-gate.sh "$$(cat dataflow.out/build/VERSION)"
 	sh scripts/release-package.sh
 
-.PHONY: all build site state status maturity check clean test deploy install release
+.PHONY: all build site state status maturity context check clean test deploy install release

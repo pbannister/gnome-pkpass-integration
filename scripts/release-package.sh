@@ -25,7 +25,7 @@
 #   VERSION        the version to stamp (default: <build>/VERSION, else git)
 #   REPOSITORY     owner/repo for the install line (default: the origin remote)
 #
-# See prompts/03-conventions.md section 6.4.
+# See prompts/capabilities/04-release-and-publishing.md.
 set -eu
 
 DIRECTORY_SCRIPT=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)

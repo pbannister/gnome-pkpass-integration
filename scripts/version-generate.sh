@@ -3,7 +3,7 @@
 # version-generate.sh: write the build-time version header.
 #
 # The version is a build-time fact derived from git state, never a source
-# literal; see prompts/03-conventions.md section 6.2, which names this script
+# literal; see prompts/capabilities/02-version-information.md, which names this script
 # and version_info.h as canonical.
 #
 # The generated header is written to the build output directory and is never

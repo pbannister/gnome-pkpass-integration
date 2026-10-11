@@ -34,9 +34,21 @@ Prose that claims a property does not raise the score.
 
 Run `make maturity` (`sh scripts/prompt-maturity.sh`). It computes the
 machine-checkable subset and prints each dimension with its ceiling. The script
-is deliberately unable to award the top score for context budget, safety,
-behavioral evals, and parallel work, because this project has no measurement for
-them. The ceilings are the finding.
+is deliberately unable to award the top score for behavioral evals and parallel
+work, because this project has no measurement or rule for them. The ceilings are
+the finding.
+
+Two dimensions earned the top score by acquiring evidence rather than prose:
+
+- Context budget: `prompts/02-workflow.md` section 1 declares
+  `Always-loaded context budget: <N> bytes`, and `make context`
+  (`sh scripts/context-budget.sh`) measures the entry point plus the mandatory
+  baseline against it. The optional capability conventions live in
+  `prompts/capabilities/` and are loaded only for a task that touches one, so
+  they no longer sit in the always-loaded path.
+- Safety: the contract denies a task any operation on a protected path and the
+  validator refuses such a task, while `evals/04-prompt-injection.md` covers the
+  behavioral half.
 
 The manual remainder is judgment:
 
@@ -54,3 +66,26 @@ The manual remainder is judgment:
   stronger model needs less of it.
 - Add a rule only after a task fails without it; then add the check that would
   have caught the failure.
+- Audit the baseline before adding to it: name the task that fails without the
+  new rule.
+
+## Context Audit
+
+The budget makes growth visible; this procedure decides what stays.
+
+- Run `make context` and take the largest section in the report.
+- For that section's rules, name the task that fails without them.
+- A rule with no such task is deleted, not kept for comfort.
+- A rule that only some tasks need moves to `prompts/capabilities/`, or to the
+  task-relevant load in `prompts/02-workflow.md` section 1.
+- Lower the declared budget when the baseline shrinks; raise it only
+  deliberately, in the same change that adds the rule.
+
+An audit is judgment, so let the evals arbitrate: remove a candidate rule, run
+the cases, and see whether any behavior degrades.
+
+Worked example, 2026-10-11: the capability block was 45% of the largest
+always-loaded file and already labelled `(capability)`, so it moved to
+`prompts/capabilities/`. A table of contents, two rule files with no unique
+rule, and three restated rules went with it. The baseline fell from 46,212 to
+39,477 bytes with no rule lost.

@@ -9,16 +9,17 @@ Always load the mandatory baseline in this order before executing a task:
 - `prompts/01-contract.md`
 - `prompts/02-workflow.md`
 - `prompts/03-conventions.md`
-- `prompts/common/00-overview.md`
-- `prompts/common/01-requirements.md`
 - `prompts/common/02-universal-rules.md`
-- `prompts/common/03-glossary.md`
 - `prompts/flavors/01-semantic-sort-naming.md`
+
+Always-loaded context budget: 41984 bytes (41 KiB) — the entry point plus this baseline.
 
 After the baseline, load only the task-relevant files:
 
 - Load the feature files the task references, and the feature files those depend on.
 - Load a language-specific flavor file only when the task targets that language.
+- Load one capability file from `prompts/capabilities/` only when the task touches that capability.
+- Load `prompts/common/03-glossary.md` as a reference when a term's meaning decides the work; it defines terms and states no rule.
 - Load a tool rule file only when the task uses that tool.
 - Load no other prompt files.
 
@@ -149,7 +150,7 @@ When automatic task commits are disabled, or the task says the human owns commit
 - Leave the changes in the working tree.
 - Report that verification succeeded and no commit was created.
 
-An outcome record is written after the episode settles and the human reviews it (see `records/README.md`); commit it separately and cite the work commit. A record that cites its own commit hash is always that second commit. Write the real commit hash, never a placeholder.
+An outcome record is written after the episode settles and the human reviews it; `records/README.md` owns the record rules, including the separate commit and the prohibition on a placeholder hash.
 
 ## 7.2 Definition of Done
 
@@ -167,10 +168,7 @@ Verification produces evidence; acceptance remains the human's decision (see `pr
 
 ## 8. Produce Output
 
-- Produce output in the format specified by the task, and nothing beyond it.
-- Keep working aids out of the response; include one only when the format requests it.
-- Keep clarification, planning, implementation, and verification in separate responses.
-- Produce multiple requested files complete, in the specified order.
+- Produce output per `prompts/01-contract.md` sections 4 and 5; they own the response form.
 
 ## 9. Apply Corrections
 

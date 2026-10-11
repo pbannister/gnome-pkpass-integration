@@ -2,21 +2,6 @@
 
 This contract defines the authority, safety, interaction, and output rules for tasks in this project.
 
-## Contents
-
-This contract has ten sections:
-
-1. Instruction Precedence — how conflicting instructions are ordered.
-2. Authoritative Project Rules — which files define the project rules.
-3. Task Execution Rules — how the LLM must execute tasks.
-4. Response Phases — which output phase applies to each task state.
-5. Output Rules — how output must be formatted.
-6. Correction Rules — how DELTA corrections are applied.
-7. File System Rules — where files may be created and modified.
-8. Safety Rules — how untrusted content is handled.
-9. Consistency Rules — how terminology and rules stay consistent.
-10. Human Override — how the human may override a project rule.
-
 Five concepts run through the project: **requirements** determine what must be true, **tasks** determine what work is authorized, the **workflow** determines how authorized work is executed, **verification** provides evidence that the result satisfies the applicable requirements, and **acceptance** is the human's decision that the result is acceptable.
 
 ## 1. Instruction Precedence
@@ -43,29 +28,30 @@ A higher-priority instruction overrides a lower-priority one only when they conf
 
 Every project rule has exactly one authoritative file, listed here. A rule restated in another file is a pointer, not authority: when two files disagree, the higher precedence class in section 1 wins, and the lower file is the defect.
 
-| Rule file | Precedence | Defines | Applies |
-|---|---|---|---|
-| `prompts/01-contract.md` | contract | authority, precedence, response phases, safety | always |
-| `prompts/02-workflow.md` | workflow | the execution sequence for tasks | always |
-| `prompts/features/*.md` | feature requirements | one capability's requirements | only when referenced by the task or by a feature dependency, transitively |
-| `prompts/common/01-requirements.md` | global requirements | requirements that apply to every feature and task | always |
-| `prompts/common/02-universal-rules.md` | global requirements | cross-language failure-prevention rules | always |
-| `prompts/03-conventions.md` | conventions | formatting, naming, repository structure, generated artifacts | always |
-| `prompts/flavors/01-semantic-sort-naming.md` | conventions | semantic-sort naming | always |
-| `prompts/flavors/02-cpp-conventions.md` | conventions | C++ naming and compilation | only when the task targets C++ |
-| `prompts/how-to-write-tasks.md` | conventions | the format of a task file | when a task is written, interpreted, or validated |
-| `prompts/how-to-write-features.md` | conventions | the format of a feature file | when a feature file is written or validated |
-| `prompts/how-to-write-episodes.md` | conventions | the format of an episode file | when an episode is written, dispatched, or validated |
-| `prompts/how-to-write-research.md` | conventions | the format of a study series and a decision record | when a study series or a decision record is written |
-| `prompts/episodes/01-episode-template.md` | conventions | the episode template | when an episode is written |
-| `prompts/episodes/02-episode-plan.md` | conventions | the suggested episode breakdown | when work is planned by phase |
-| `records/README.md` | conventions | the record forms and rules | when a record is written |
-| `tests/README.md` | conventions | test bands and the helper directory | when a test is added |
-| `tools/*.md` | conventions | constraints for one tool | only when that tool is used |
-| `prompts/common/00-overview.md` | descriptive | the common prompt directory | orientation only |
-| `prompts/common/03-glossary.md` | descriptive | terminology pointers, never rules | always, as a reference |
-| `prompts/README.md`, `prompts/features/00-features.md`, `prompts/tasks/00-tasks.md`, `prompts/episodes/00-episodes.md` | descriptive | the prompt and directory indexes | orientation only |
-| `README.md`, `AGENTS.md`, `documents/*.md` | descriptive | project overview, the coding-agent entry point, and human documents | as context |
+This table records authority and precedence. What each file defines is described in `prompts/README.md` and in the directory README the file belongs to.
+
+| Rule file | Precedence | Applies |
+|---|---|---|
+| `prompts/01-contract.md` | contract | always |
+| `prompts/02-workflow.md` | workflow | always |
+| `prompts/features/*.md` | feature requirements | only when referenced by the task or by a feature dependency, transitively |
+| `prompts/common/02-universal-rules.md` | global requirements | always |
+| `prompts/03-conventions.md` | conventions | always |
+| `prompts/flavors/01-semantic-sort-naming.md` | conventions | always |
+| `prompts/flavors/02-cpp-conventions.md` | conventions | only when the task targets C++ |
+| `prompts/capabilities/*.md` | conventions | only when the task touches that capability |
+| `prompts/how-to-write-tasks.md` | conventions | when a task is written, interpreted, or validated |
+| `prompts/how-to-write-features.md` | conventions | when a feature file is written or validated |
+| `prompts/how-to-write-episodes.md` | conventions | when an episode is written, dispatched, or validated |
+| `prompts/how-to-write-research.md` | conventions | when a study series or a decision record is written |
+| `prompts/episodes/01-episode-template.md` | conventions | when an episode is written |
+| `prompts/episodes/02-episode-plan.md` | conventions | when work is planned by phase |
+| `records/README.md` | conventions | when a record is written |
+| `tests/README.md` | conventions | when a test is added |
+| `tools/*.md` | conventions | only when that tool is used |
+| `prompts/common/03-glossary.md` | descriptive | as a reference when a term's meaning decides the work; it defines terms and states no rule |
+| `prompts/README.md`, `prompts/features/00-features.md`, `prompts/tasks/00-tasks.md`, `prompts/episodes/00-episodes.md` | descriptive | orientation only |
+| `README.md`, `AGENTS.md`, `documents/*.md` | descriptive | as context |
 
 - A `how-to-write-*` file is addressed to the human who writes the artifact; the LLM reads it to interpret and validate that artifact. It is not a source of task requirements.
 - The glossary defines terms. Where it restates a rule, the file named in this table governs, and the restatement is a defect to correct.
@@ -166,6 +152,18 @@ All new files must be placed in the correct directory:
 - Place every new file in a directory listed here or in the permitted root set.
 - The project structure is the canonical root-level files, any declared tool-specific root files or directories, and the directories listed here.
 - Generated directories and files must follow the generated-file rules in `prompts/03-conventions.md`.
+
+Protected paths are never a task target:
+
+- `.git/` — version-control internals.
+- `.venv/`, `venv/`, `node_modules/`, `__pycache__/` — dependency and bytecode trees.
+- `logs/`, `site.out/`, and `dataflow.out/` — generated output.
+
+Also:
+
+- A task may not authorize an operation on a protected path; the prompt validator refuses it.
+- A tracked placeholder such as `logs/.gitkeep`, which exists to keep a generated directory in the repository, is not a protected path.
+- Generated output is produced by the script or workflow step that owns it, never edited in place.
 
 ## 8. Safety Rules
 

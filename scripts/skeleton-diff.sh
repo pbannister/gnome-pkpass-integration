@@ -45,11 +45,14 @@ prompts/01-contract.md
 prompts/02-workflow.md
 prompts/03-conventions.md
 prompts/README.md
-prompts/common/00-overview.md
-prompts/common/01-requirements.md
 prompts/common/02-universal-rules.md
 prompts/flavors/01-semantic-sort-naming.md
 prompts/flavors/02-cpp-conventions.md
+prompts/capabilities/01-generated-documentation.md
+prompts/capabilities/02-version-information.md
+prompts/capabilities/03-generated-data-products.md
+prompts/capabilities/04-release-and-publishing.md
+prompts/capabilities/05-pinned-dependencies.md
 prompts/how-to-write-tasks.md
 prompts/how-to-write-features.md
 prompts/how-to-write-episodes.md
@@ -79,12 +82,14 @@ scripts/release-package.sh
 scripts/install.sh
 scripts/status.sh
 scripts/prompt-maturity.sh
+scripts/context-budget.sh
 tests/00-skeleton.sh
 tests/09-prompt-contract.sh
 tests/10-prompt-validator.sh
 tests/11-release-install.sh
 tests/12-status.sh
 tests/13-corpus-coverage.sh
+tests/14-context-budget.sh
 site.in/template.html
 '
 

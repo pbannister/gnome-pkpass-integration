@@ -35,6 +35,29 @@
 
 ## Recently Completed
 
+* [x] re-sync with the project skeleton (2026-10-11):
+    * [x] took the skeleton's byte-identical rule files as they are: the
+          contract, the workflow, the conventions, `prompts/README.md`,
+          `tests/README.md`, and the five new `prompts/capabilities/`
+          conventions, which split the capability rules out of the conventions
+          so they are loaded only for a task that touches one.
+    * [x] kept this project's sections on the append-only files
+          (`documents/README.md`, `prompts/common/03-glossary.md`) by re-basing
+          them onto the skeleton's new text rather than merging by hand.
+    * [x] took the updated scripts (`skeleton-diff`, `context-budget`,
+          `install`, `release-package`, `prompt-maturity`, `version-generate`)
+          and re-applied the project's two adaptations on top: the page title in
+          `site-build.sh` and the fixture number in `tests/10`.
+    * [x] adopted `make context` and the always-loaded budget: 39 477 of 41 984
+          bytes, inside the declared limit.
+    * [x] dropped `prompts/common/00-overview.md` and `01-requirements.md`, which
+          the skeleton folded into the contract and the common rules; the
+          validator refuses a universal rule file the registry does not name.
+    * [x] renumbered this project's reader tests to `16` and `17`, because the
+          skeleton's new `tests/14-context-budget.sh` is named by the shared
+          `tests/README.md` and has the stronger claim to the number.
+    * [x] `scripts/skeleton-diff.sh` now reports 0 drift, 0 missing, 2 appended,
+          and 2 reference adaptations; `make test` is 26 tests, all passing.
 * [x] register the project pages with the homelab and publish them (2026-10-10):
     * [x] registered as `gnome-pkpass-integration` in the homelab's
           `sources/projects.yaml` with `self_published: true` and a
@@ -82,7 +105,7 @@
     * [x] the detached PKCS#7 signature checked through `openssl`, reported as
           absent, verified, invalid, or unavailable.
     * [x] feature `03-pkpass-reader.md`, task `02`, and tests
-          `14-sha1`, `15-json-reader`, `30-zip-reader`, `31-pkpass-reader`.
+          `16-sha1`, `17-json-reader`, `30-zip-reader`, `31-pkpass-reader`.
 * [x] draw a pass (2026-10-10; phase 3):
     * [x] one standalone SVG card: the pass's colours, the field groups as
           label-over-value columns, the logo embedded as a base64 PNG chosen

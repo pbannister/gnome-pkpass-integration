@@ -188,4 +188,3 @@ authoritative file; the glossary never states a rule.
   directory that lists what a handler install wrote and what it displaced, and
   which an uninstall reads.
   - The requirements: `prompts/features/05-pkpass-handler.md`.
-

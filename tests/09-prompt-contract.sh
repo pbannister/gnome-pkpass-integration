@@ -22,6 +22,7 @@
 #   * every tracked root-level file is permitted by contract section 7;
 #   * AGENTS.md exists and points at the authoritative files;
 #   * a script never blocks on standard input;
+#   * a task does not authorize an operation on a protected path;
 #   * each curated rule family appears in exactly one authoritative file.
 #
 # The rule-family markers are stable identifiers for canonical rules, not the
@@ -247,6 +248,7 @@ else:
 # 8. Every universal rule file is in the registry.
 universal = []
 for pattern in ("prompts/common/*.md", "prompts/flavors/*.md",
+                "prompts/capabilities/*.md",
                 "prompts/how-to-write-*.md", "prompts/0[0-9]-*.md"):
     universal.extend(glob.glob(os.path.join(root, pattern)))
 for path in sorted(universal):
@@ -483,6 +485,25 @@ for family, owner, marker in RULE_FAMILIES:
     for rel in holders:
         if rel != owner:
             failures.append(f"rule family '{family}': duplicated in {rel}; the authoritative file is {owner}")
+
+# 12. A task does not authorize an operation on a protected path
+#     (prompts/01-contract.md section 7).
+PROTECTED_PATHS = (".git", ".venv", "venv", "node_modules", "__pycache__",
+                   "logs", "site.out", "dataflow.out")
+
+for path in sorted(glob.glob(os.path.join(root, "prompts/tasks/[0-9][0-9]-*.md"))):
+    rel = os.path.relpath(path, root)
+    if os.path.basename(rel).startswith("00-"):
+        continue
+    match_protected = re.search(r"^## TASK-FILES\s*$(.*?)(?=^## |\Z)", read(rel), re.S | re.M)
+    if not match_protected:
+        continue
+    for _operation, path_token in re.findall(
+            r"^\|\s*([A-Za-z]+)\s*\|\s*`([^`]+)`\s*\|\s*$", match_protected.group(1), re.M):
+        if path_token.endswith("/.gitkeep"):
+            continue
+        if path_token.split("/")[0] in PROTECTED_PATHS:
+            failures.append(f"{rel}: TASK-FILES authorizes a protected path: {path_token}")
 
 if failures:
     for failure in failures:

@@ -20,8 +20,8 @@
 - Create: `tests/json_reader_test.cpp`
 - Create: `tests/zip_reader_test.cpp`
 - Create: `tests/pkpass_reader_test.cpp`
-- Create: `tests/14-sha1.sh`
-- Create: `tests/15-json-reader.sh`
+- Create: `tests/16-sha1.sh`
+- Create: `tests/17-json-reader.sh`
 - Create: `tests/30-zip-reader.sh`
 - Create: `tests/31-pkpass-reader.sh`
 - Modify: `tests/lib/test_helpers.sh`
@@ -62,8 +62,8 @@ Produce these complete files in this order, then the `VERIFICATION:` line:
 17. `tests/json_reader_test.cpp`
 18. `tests/zip_reader_test.cpp`
 19. `tests/pkpass_reader_test.cpp`
-20. `tests/14-sha1.sh`
-21. `tests/15-json-reader.sh`
+20. `tests/16-sha1.sh`
+21. `tests/17-json-reader.sh`
 22. `tests/30-zip-reader.sh`
 23. `tests/31-pkpass-reader.sh`
 24. `tests/lib/test_helpers.sh`
@@ -109,8 +109,8 @@ published.
 | create | `tests/json_reader_test.cpp` |
 | create | `tests/zip_reader_test.cpp` |
 | create | `tests/pkpass_reader_test.cpp` |
-| create | `tests/14-sha1.sh` |
-| create | `tests/15-json-reader.sh` |
+| create | `tests/16-sha1.sh` |
+| create | `tests/17-json-reader.sh` |
 | create | `tests/30-zip-reader.sh` |
 | create | `tests/31-pkpass-reader.sh` |
 | modify | `tests/lib/test_helpers.sh` |

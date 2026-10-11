@@ -232,8 +232,11 @@ reset; mkdir -p "$DIRECTORY_ROOT/.undocumented"
 printf '%s\n' 'x' > "$DIRECTORY_ROOT/.undocumented/config.json"
 expect_reject 9 'undeclared tool directory' 'tool directory is not permitted'
 
-reset; mkdir -p "$DIRECTORY_ROOT/.vscode"
-printf '%s\n' '{ "path": "/home/someone/sources" }' > "$DIRECTORY_ROOT/.vscode/settings.json"
+# This project ignores .vscode/ (see .gitignore), so an absolute path written
+# there would not be committed tool configuration and the check would rightly
+# skip it.  The fixture uses .aider.conf.yml instead: it is tracked, and the
+# check covers it under the same rule.
+reset; printf '%s\n' 'read:' '  - /home/someone/sources' > "$DIRECTORY_ROOT/.aider.conf.yml"
 expect_reject 9 'absolute home path in tool configuration' 'absolute home path'
 
 # --- checks 9.1, 9.2, 11: the agent entry point and unattended scripts ---
@@ -254,6 +257,13 @@ expect_reject 9.2 'script that blocks on standard input' 'blocks on standard inp
 
 reset; printf '#!/bin/sh\nread -r answer < /dev/tty\n' > "$DIRECTORY_ROOT/scripts/prompt-tty.sh"
 expect_reject 9.2 'script that reads the terminal' 'reads the terminal'
+
+# --- check 12: protected paths ---
+reset; sed -i 's#`scripts/site-build.sh`#`.git/config`#' "$FILE_TASK"
+expect_reject 12 'a task authorizing a version-control path' 'authorizes a protected path'
+
+reset; sed -i 's#`scripts/site-build.sh`#`logs/session.log`#' "$FILE_TASK"
+expect_reject 12 'a task authorizing generated output' 'authorizes a protected path'
 
 # --- acceptance cases: the validator must not reject a valid variation ---
 # Feature 02 depends on feature 01, so a task that lists 02 may claim a
@@ -290,6 +300,9 @@ expect_accept 'a project appendix on a shared rule file'
 
 reset; printf '#!/bin/sh\nwhile IFS= read -r line; do\n    :\ndone < "$1"\n' > "$DIRECTORY_ROOT/scripts/loop-input.sh"
 expect_accept 'a script that reads a file, not standard input'
+
+reset; sed -i 's#`scripts/site-build.sh`#`logs/.gitkeep`#' "$FILE_TASK"
+expect_accept 'a tracked placeholder inside a generated directory'
 
 echo "10-prompt-validator: ok ($count_case rejected, $count_accept accepted)"
 exit 0

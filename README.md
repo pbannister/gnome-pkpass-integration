@@ -100,7 +100,7 @@ define the type and its definition is not this project's to lose.
 - `AGENTS.md` is the coding-agent entry point; it points at `prompts/` and defines no rule.
 - `TODO.md` tracks pending and completed project tasks.
 - `PHASES.md` records the current phase and its milestones.
-- `prompts/` contains LLM interaction rules, common requirements, feature requirements, task definitions, and episode work orders.
+- `prompts/` contains LLM interaction rules, common requirements, feature requirements, task definitions, episode work orders, and the capability conventions (`prompts/capabilities/`) that are loaded only when a task touches one.
 - `documents/` contains human-consumption documents: the interaction pattern, worked examples, and the format research.
 - `records/` contains version-controlled outcome, incident, and handoff records.
 - `tools/` contains tool-specific rules.
@@ -119,6 +119,9 @@ define the type and its definition is not this project's to lose.
 - `make build` configures and compiles the readers, the renderer, the integration, and the tools into `dataflow.out/build/`.
 - `make install` installs `pkpass-inspect`, `pkpass-render`, and `pkpass-integrate` (and `pkpass-viewer` where GTK4 is present) into `$HOME/.local/bin` (`PREFIX` overrides), with the icon, and registers the handler; `PKPASS_INTEGRATION_NO_HANDLER=1` skips the registration.
 - `make test` runs every test in `tests/` and writes a timestamped log to `logs/`.
+- `make status` reports the phase, the next open TODO item, the last test run, and the working-tree state in one screen.
+- `make context` measures the always-loaded context (the entry point plus the mandatory baseline) against the budget `prompts/02-workflow.md` declares.
+- `make maturity` scores the machine-checkable subset of the prompt-maturity rubric.
 - `make site` builds the published page set, then runs the sanitization gate over `site.out/` (`make check` runs the gate alone).
 - `make release` builds, stages the programs into `dataflow.out/build/bin/`, checks that the version names the current commit, and writes the release assets into `dataflow.out/release/`.
 - `make clean` removes generated output.
@@ -126,10 +129,11 @@ define the type and its definition is not this project's to lose.
 The C++ build uses CMake with the highest warning level and treats warnings as
 errors.
 
-The tests follow the skeleton's reserved bands: `14`–`15` for the SHA-1 and JSON
-readers, `30`–`31` for the ZIP and pass readers, `40` for the renderer, `60` for
-the command-line tools, and `90`–`95` for the handler install and uninstall and
-for the viewer window.
+The tests follow the skeleton's reserved bands: `14` for the context budget,
+`16`–`17` for the SHA-1 and JSON readers, `30`–`31` for the ZIP and pass
+readers, `40`–`42` for the renderer and the QR encoder, `60` for the
+command-line tools, and `90`–`96` for the handler install and uninstall, the
+viewer window, and the barcode decode.
 The C++ unit tests (`tests/*_test.cpp`, `tests/test_harness.h`) are built by
 `sources/CMakeLists.txt` and run by a shell test, which also builds the fixture;
 `tests/lib/test_helpers.sh` carries `build_program` and `build_synthetic_pkpass`.
@@ -189,16 +193,22 @@ itself.
 
 ## For the LLM
 
-The LLM should begin by reading these files in this order (the numeric prefix
-marks the load order):
+The mandatory baseline is defined in `prompts/02-workflow.md` section 1, and its
+size is measured by `make context` against the budget that same section
+declares. It is, in order:
 
 1. `prompts/01-contract.md`
 2. `prompts/02-workflow.md`
 3. `prompts/03-conventions.md`
+4. `prompts/common/02-universal-rules.md`
+5. `prompts/flavors/01-semantic-sort-naming.md`
+6. `AGENTS.md` (the entry point, read first)
 
-- These define the interaction rules, workflow, and formatting conventions.
+- These define the interaction rules, the workflow, the formatting conventions, and the global rules.
 - The LLM must follow the workflow defined in `prompts/02-workflow.md` for every task.
+- A capability convention under `prompts/capabilities/` is loaded only for a task that touches that capability, so it stays out of the always-loaded context.
 - This project targets C++, so `prompts/flavors/02-cpp-conventions.md` applies to source work.
+- `prompts/common/03-glossary.md` is a reference: load it when a term's meaning decides the work.
 
 ## Project Scope
 

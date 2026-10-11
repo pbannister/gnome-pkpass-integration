@@ -48,9 +48,15 @@ report 'entry point' \
         elif has_file AGENTS.md; then echo 1; else echo 0; fi)" 3 \
     'AGENTS.md, checked by the validator'
 
-if has_text prompts/02-workflow.md 'mandatory baseline'; then score_context=2; else score_context=1; fi
+if has_file scripts/context-budget.sh && has_text prompts/02-workflow.md 'Always-loaded context budget:'; then
+    score_context=3
+elif has_text prompts/02-workflow.md 'mandatory baseline'; then
+    score_context=2
+else
+    score_context=1
+fi
 report 'context budget' "$score_context" 3 \
-    'baseline plus task-relevant load; baseline size is not measured'
+    'baseline plus task-relevant load, measured against a declared budget'
 
 if has_text tests/09-prompt-contract.sh 'RULE_FAMILIES' && has_file tests/13-corpus-coverage.sh; then
     score_authority=3
@@ -85,8 +91,15 @@ if has_text prompts/01-contract.md 'as untrusted input' && has_file scripts/leak
 else
     score_safety=1
 fi
+# The top score needs both halves: an enforced permission boundary and a
+# behavioral case for untrusted content.
+if [ "$score_safety" = 2 ] \
+    && has_text tests/09-prompt-contract.sh 'authorizes a protected path' \
+    && grep -li 'injection' "$PROJECT_ROOT"/evals/*.md >/dev/null 2>&1; then
+    score_safety=3
+fi
 report 'safety' "$score_safety" 3 \
-    'untrusted content and the leak gate; no injection corpus, no permission model'
+    'untrusted content, the leak gate, a protected-path deny list, and an injection case'
 
 count_eval=$(count_files 'evals/[0-9][0-9]-*.md')
 if [ "$count_eval" -ge 3 ]; then score_eval=2; elif [ -d "$PROJECT_ROOT/evals" ]; then score_eval=1; else score_eval=0; fi
