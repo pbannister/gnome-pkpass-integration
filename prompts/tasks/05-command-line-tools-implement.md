@@ -6,6 +6,7 @@
 - Create: `sources/tools/pkpass_integrate.cpp`
 - Create: `sources/tools/pkpass_viewer_ui.cpp`
 - Create: `tests/60-command-line-tools.sh`
+- Create: `tests/95-viewer.sh`
 - Create: `scripts/program-build.sh`
 - Create: `scripts/program-install.sh`
 - Create: `scripts/release-stage.sh`
@@ -31,11 +32,12 @@ Produce these complete files in this order, then the `VERIFICATION:` line:
 3. `sources/tools/pkpass_integrate.cpp`
 4. `sources/tools/pkpass_viewer_ui.cpp`
 5. `tests/60-command-line-tools.sh`
-6. `scripts/program-build.sh`
-7. `scripts/program-install.sh`
-8. `scripts/release-stage.sh`
-9. `sources/CMakeLists.txt`
-10. `Makefile`
+6. `tests/95-viewer.sh`
+7. `scripts/program-build.sh`
+8. `scripts/program-install.sh`
+9. `scripts/release-stage.sh`
+10. `sources/CMakeLists.txt`
+11. `Makefile`
 
 ## TASK-CONTEXT
 <note>
@@ -55,6 +57,7 @@ GTK4 major version is present.
 | create | `sources/tools/pkpass_integrate.cpp` |
 | create | `sources/tools/pkpass_viewer_ui.cpp` |
 | create | `tests/60-command-line-tools.sh` |
+| create | `tests/95-viewer.sh` |
 | create | `scripts/program-build.sh` |
 | create | `scripts/program-install.sh` |
 | create | `scripts/release-stage.sh` |
@@ -76,6 +79,7 @@ GTK4 major version is present.
 - `COMMAND-LINE-TOOLS-R009`
 - `COMMAND-LINE-TOOLS-R011`
 - `COMMAND-LINE-TOOLS-R012`
+- `COMMAND-LINE-TOOLS-R015`
 - `PKPASS-HANDLER-R017`
 
 OUTPUT: the complete files in the order listed, ending with the `VERIFICATION:` line.

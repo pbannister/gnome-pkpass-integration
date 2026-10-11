@@ -21,6 +21,7 @@ pass can be read, checked, rendered, and registered from a script.
 - `COMMAND-LINE-TOOLS-R012` — A file that cannot be read must print `<program>: <message>` on standard error and exit with status 1.
 - `COMMAND-LINE-TOOLS-R013` — `pkpass-inspect` and `pkpass-render` must accept exactly one file.
 - `COMMAND-LINE-TOOLS-R014` — `pkpass-render` must print a warning on standard error, and still write the card, when the images could not be read.
+- `COMMAND-LINE-TOOLS-R015` — `pkpass-viewer FILE.pkpass` must open a window titled with the pass description and carrying the `pkpass-viewer` WM class, and must open an explanatory window rather than exiting silently when the file is not a readable pass.
 
 ## Behavior
 
@@ -29,6 +30,7 @@ pass can be read, checked, rendered, and registered from a script.
 - On a tampered pass, the report names the mismatched member and the JSON says `manifestOk` false.
 - `pkpass-render --output card.svg FILE` leaves a non-empty SVG carrying the embedded logo.
 - `pkpass-inspect` with no file argument exits 2; with a path that does not exist it exits 1.
+- `pkpass-viewer` on the fixture leaves a window named for the pass on the display, and `pkpass-integrate handle` puts the same window up.
 
 ## Dependencies
 

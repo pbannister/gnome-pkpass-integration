@@ -25,9 +25,9 @@ Everything the desktop does is also a command line.
 **Status: phase 4 — the reader, the renderer, the handler, and the tools are
 complete and `make test` passes; the page set and a release are still to be
 published.**
-The barcode is not yet drawn as a scannable symbol, and the GTK4 viewer is not
-built on a host without the GTK4 development files; both are recorded in
-`TODO.md`.
+The barcode is not yet drawn as a scannable symbol; the GTK4 viewer is built and
+exercised here under Xvfb, and is skipped where the GTK4 development files are
+absent. Both points are recorded in `TODO.md`.
 
 ## Installing
 
@@ -119,7 +119,8 @@ errors.
 
 The tests follow the skeleton's reserved bands: `14`–`15` for the SHA-1 and JSON
 readers, `30`–`31` for the ZIP and pass readers, `40` for the renderer, `60` for
-the command-line tools, and `90` for the handler install and uninstall.
+the command-line tools, and `90`–`95` for the handler install and uninstall and
+for the viewer window.
 The C++ unit tests (`tests/*_test.cpp`, `tests/test_harness.h`) are built by
 `sources/CMakeLists.txt` and run by a shell test, which also builds the fixture;
 `tests/lib/test_helpers.sh` carries `build_program` and `build_synthetic_pkpass`.
@@ -144,11 +145,14 @@ touching this machine's own desktop.
 - `sources/CMakeLists.txt` defines the targets; the build tree is written to `dataflow.out/build/`.
 
 The graphical viewer is C++ with GTK4.
-The build needs the GTK4 development files (`libgtk4-dev` or `gtk4-devel`);
-without them the viewer is not built, and `pkpass-integrate handle` prints the
-equivalent command-line commands instead.
-That is the case on the machine where this project was first built and tested, so
-the viewer target is compiled or exercised only on a host that has GTK4.
+The build needs the GTK4 development files (`libgtk-4-dev` for Debian and
+Ubuntu, `gtk4-devel` for Fedora); without them the viewer target is skipped and
+`pkpass-integrate handle` prints the equivalent command-line commands instead.
+`tests/95-viewer.sh` opens the window on a private Xvfb display and checks the
+window's title and WM class, so the viewer is covered by `make test` wherever
+GTK4 and Xvfb are present, and skips cleanly where they are not.
+Nothing in the viewer needs `librsvg`: the logo is a PNG shown through
+`GtkPicture`, and the only SVG the project writes is the rendered card file.
 
 ## Research Findings
 

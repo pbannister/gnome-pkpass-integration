@@ -81,6 +81,15 @@
           present, with `handle` falling back to printed commands.
     * [x] feature `06-command-line-tools.md`, task `05`, and test
           `60-command-line-tools`.
+* [x] verify the GTK4 viewer instead of only reviewing it (2026-10-10):
+    * [x] the GTK4 development files were installed on the build host, so the
+          viewer target builds; its source compiles clean under the project's
+          `-Wall -Wextra -Wpedantic -Werror`.
+    * [x] `tests/95-viewer.sh` starts a private Xvfb display and checks the
+          window's title and WM class through the X server, so a viewer that
+          compiles and then exits can no longer pass unnoticed.
+    * [x] the window carries the `pkpass-viewer` WM class the handler entry
+          names, and `pkpass-integrate handle` puts the same window up.
 * [x] research the format before writing the reader (2026-10-10; phase 2):
     * [x] `documents/08-pkpass-format.md` and
           `documents/09-mime-type-association.md` record the format, the MIME
