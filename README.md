@@ -13,8 +13,9 @@ application that opens the two Wallet MIME types.
 
 - `pkpass-inspect` reads a pass and prints what it contains, including whether
   the manifest digests still match and whether the signature checks out.
-- `pkpass-render` draws the pass as a standalone SVG card, carrying its colours
-  and its logo.
+- `pkpass-render` draws the pass as a standalone SVG card, carrying its colours,
+  its logo, and a scannable QR symbol of the barcode, with the payload
+  re-indented and its URLs clickable.
 - `pkpass-integrate handler install` associates `application/vnd.apple.pkpass`
   and `application/vnd.apple.pkpasses` with this project, gives the file type
   its icon, and remembers what opened those types before, so the change can be
@@ -25,9 +26,11 @@ Everything the desktop does is also a command line.
 **Status: phase 4 — the reader, the renderer, the handler, and the tools are
 complete and `make test` passes; the page set and a release are still to be
 published.**
-The barcode is not yet drawn as a scannable symbol; the GTK4 viewer is built and
-exercised here under Xvfb, and is skipped where the GTK4 development files are
-absent. Both points are recorded in `TODO.md`.
+The barcode is drawn as a real QR symbol, encoded from the message bytes at
+error correction level M; the payload below it is re-indented when it is JSON,
+and an `http` or `https` URL in a field or in the payload is clickable. The
+GTK4 viewer is built and exercised here under Xvfb, and is skipped where the
+GTK4 development files are absent.
 
 ## Installing
 
@@ -61,6 +64,7 @@ temporary directory, and never needs root.
 | `pkpass-render --back FILE.pkpass` | draw the reverse, where the back fields are |
 | `pkpass-render --no-images FILE.pkpass` | draw the card without the embedded logo |
 | `pkpass-render --output FILE FILE.pkpass` | write the SVG to a file |
+| `pkpass-render --qr-png FILE FILE.pkpass` | also write the barcode as a PNG, to scan from another screen |
 | `pkpass-integrate handler status` | report each type's default, the entry, the definition, the type icons, and the record |
 | `pkpass-integrate handler install` | write the MIME definition, the handler entry, the three icons, and the record, and set both types to this handler |
 | `pkpass-integrate handler uninstall` | restore the recorded previous handlers and remove what this project installed |
@@ -142,6 +146,7 @@ touching this machine's own desktop.
 - `sources/json/` contains the minimal JSON value and parser.
 - `sources/zip/` contains the ZIP reader, which honours each member's own compression method.
 - `sources/pkpass/` contains the pass model, the reader, and the manifest and signature verification.
+- `sources/qr/` contains the QR encoder the barcode is drawn with.
 - `sources/render/` contains the SVG card renderer.
 - `sources/integration/` contains the MIME-definition and handler-database integration.
 - `sources/util/` contains file and process helpers.
@@ -201,7 +206,7 @@ The project reads one file format and integrates it into the desktop.
 1. Read a `.pkpass` container: the ZIP members, each with its own compression method.
 2. Read `pass.json`: the top-level keys, the pass style, the five field groups, the colours, the barcodes, and the relevance locations.
 3. Check the pass: the SHA-1 digests in `manifest.json`, and the detached PKCS#7 signature over the manifest.
-4. Draw the pass as a standalone SVG card.
+4. Draw the pass as a standalone SVG card, with a scannable QR symbol of the barcode and its payload, JSON re-indented and URLs clickable.
 5. Register `application/vnd.apple.pkpass` and `application/vnd.apple.pkpasses` with the desktop, and reverse that registration from a record.
 
 The project never modifies a pass, and it never requires root.

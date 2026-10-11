@@ -5,6 +5,7 @@
 // for a thumbnail; it is a plain SVG so it needs no image library.
 //
 #include "pkpass/pkpass_reader.h"
+#include "qr/qr_encoder.h"
 #include "render/pass_render.h"
 #include "util/file_io.h"
 #include "version/version.h"
@@ -21,16 +22,19 @@ constexpr int EXIT_USAGE = 2;
 struct options_o {
     std::string s_path;
     std::string s_output;
+    std::string s_qr_png;
     bool b_back = false;
     bool b_no_images = false;
 };
 
 void print_usage(std::ostream &s_out) {
-    s_out << "usage: pkpass-render [--back] [--no-images] [--output FILE] FILE.pkpass\n"
+    s_out << "usage: pkpass-render [--back] [--no-images] [--output FILE]\n"
+             "                      [--qr-png FILE] FILE.pkpass\n"
              "\n"
              "  --back       draw the reverse of the pass (the back fields)\n"
              "  --no-images  do not embed the pass's own images\n"
-             "  --output     write to FILE instead of standard output\n";
+             "  --output     write the SVG to FILE instead of standard output\n"
+             "  --qr-png     also write the barcode as a PNG, for a scanner to read\n";
 }
 
 }  // namespace
@@ -43,6 +47,12 @@ int main(int i_argument_count, char *o_arguments[]) {
             o_options.b_back = true;
         } else if ("--no-images" == s_argument) {
             o_options.b_no_images = true;
+        } else if ("--qr-png" == s_argument) {
+            if (i_argument + 1 >= i_argument_count) {
+                std::cerr << "pkpass-render: --qr-png needs a file name\n";
+                return EXIT_USAGE;
+            }
+            o_options.s_qr_png = o_arguments[++i_argument];
         } else if ("--output" == s_argument || "-o" == s_argument) {
             if (i_argument + 1 >= i_argument_count) {
                 std::cerr << "pkpass-render: --output needs a file name\n";
@@ -78,6 +88,27 @@ int main(int i_argument_count, char *o_arguments[]) {
     if (!gnome_pkpass::pkpass::read_pass(o_options.s_path, o_pass, s_error)) {
         std::cerr << "pkpass-render: " << s_error << '\n';
         return EXIT_ERROR;
+    }
+
+    // The barcode as a PNG, when one was asked for: the same symbol the card
+    // draws, so it can be scanned from a printed card or another screen.
+    if (!o_options.s_qr_png.empty()) {
+        if (o_pass.o_barcodes.empty()) {
+            std::cerr << "pkpass-render: the pass carries no barcode\n";
+            return EXIT_ERROR;
+        }
+        gnome_pkpass::qr::matrix_o o_matrix;
+        if (!gnome_pkpass::render::encode_barcode(o_pass.o_barcodes.front(),
+                                                  gnome_pkpass::qr::level_e::medium, o_matrix,
+                                                  s_error)) {
+            std::cerr << "pkpass-render: " << s_error << '\n';
+            return EXIT_ERROR;
+        }
+        if (!gnome_pkpass::util::write_file(o_options.s_qr_png,
+                                            gnome_pkpass::qr::to_png(o_matrix, 6, 4), s_error)) {
+            std::cerr << "pkpass-render: " << s_error << '\n';
+            return EXIT_ERROR;
+        }
     }
 
     gnome_pkpass::render::options_o o_render;

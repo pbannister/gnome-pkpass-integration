@@ -16,10 +16,15 @@ barcode payload.
 - `PASS-RENDERER-R006` — The renderer must show the first barcode's format label, its `altText`, and its `message`.
 - `PASS-RENDERER-R007` — The renderer must draw the `backFields` on request, and must not draw them otherwise.
 - `PASS-RENDERER-R008` — The renderer must escape the XML metacharacters in every string that came from the pass.
-- `PASS-RENDERER-R009` — The renderer must not draw a scannable-looking symbol it cannot encode; until an encoder exists it shows the barcode's format and payload instead.
+- `PASS-RENDERER-R009` — The renderer must draw the first barcode as a real QR symbol, encoded from the message bytes at error correction level M, in the smallest version that fits; when the payload does not fit a supported version it must say so instead of drawing a symbol that would not scan.
 - `PASS-RENDERER-R010` — The renderer must still produce a card when the container cannot be reopened for images, and must report why the images are missing.
 - `PASS-RENDERER-R011` — The renderer must wrap long field text instead of running it off the card.
 - `PASS-RENDERER-R012` — No public interface may throw.
+- `PASS-RENDERER-R013` — The renderer must show the barcode payload re-indented when it is a JSON object or array, keeping every line's own indentation, and must not change the bytes the symbol encodes.
+- `PASS-RENDERER-R014` — The renderer must make an `http` or `https` URL in a field value, an `attributedValue` anchor, or the payload clickable, and must not make any other scheme clickable.
+- `PASS-RENDERER-R015` — The renderer must keep a literal newline in a field value as a line break.
+- `PASS-RENDERER-R016` — The renderer must treat only `attributedValue` as markup; a plain `value` is literal text and any angle bracket in it is drawn as text.
+- `PASS-RENDERER-R017` — `pkpass-render --qr-png FILE` must write the barcode as a PNG, so the symbol can be scanned from the card or copied to another screen.
 
 ## Behavior
 
@@ -28,6 +33,9 @@ barcode payload.
 - Given a field value containing `<script>`, the SVG contains no `<script>` element.
 - Given a request for the reverse, the card names the back field labels and the front does not.
 - Given a path whose file has been removed, the card is still returned.
+- Given a barcode whose message is `{"ticket":"0000000001","seat":"A1"}`, the card carries a scannable QR symbol of exactly those bytes and shows the payload on three indented lines.
+- Given a field value holding `https://example.invalid/profile/1`, the SVG carries an anchor to that URL and no anchor to a `javascript:` URL.
+- Given a value with a newline in it, the card draws it as two lines.
 
 ## Dependencies
 

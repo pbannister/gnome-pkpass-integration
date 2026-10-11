@@ -93,6 +93,18 @@ assert report["verification"]["manifestOk"] is False, "the tampered manifest was
 assert report["verification"]["manifestMismatched"] == 1, report["verification"]
 PYTHON_CHECK
 
+# --- the barcode can be written as a PNG for a scanner ----------------------
+FILE_PNG="$DIRECTORY_TEMPORARY/barcode.png"
+"$PROGRAM_RENDER" --qr-png "$FILE_PNG" "$FILE_PKPASS" >/dev/null \
+    || fail_test "$NAME_TEST" 'pkpass-render --qr-png failed'
+if [ ! -s "$FILE_PNG" ]; then
+    fail_test "$NAME_TEST" '--qr-png wrote no file'
+fi
+# The PNG signature, read as bytes, so the file really is an image.
+if [ "$(od -An -tx1 -N8 "$FILE_PNG" | tr -d ' \n')" != '89504e470d0a1a0a' ]; then
+    fail_test "$NAME_TEST" '--qr-png did not write a PNG'
+fi
+
 # --- usage errors are exit code 2 --------------------------------------------
 if "$PROGRAM_INSPECT" >/dev/null 2>&1; then
     fail_test "$NAME_TEST" 'pkpass-inspect accepted no file argument'

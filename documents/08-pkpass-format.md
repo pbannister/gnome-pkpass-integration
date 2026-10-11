@@ -281,10 +281,15 @@ The reader in this repository implements the following parts of the format, and 
 - It checks the detached PKCS#7 signature over `manifest.json` with `openssl` when that program is present, reporting `absent`, `verified`, `invalid`, or `unavailable`, and it names the signer from the embedded certificate.
 - It returns a pass with warnings instead of refusing a structurally readable one, so that a viewer can still show it.
 
-Two capabilities are deliberately absent, and the reference above describes more of the format than the code currently uses.
+- It draws the first barcode as a QR symbol, encoded from the message bytes in 8-bit byte mode at error correction level M; the encoder is `sources/qr/qr_encoder.cpp`, and the rule it follows is `PASS-RENDERER-R009`.
+  The payload is printed below the symbol, re-indented when it is JSON, and a URL in it or in a field is clickable.
+  A pass whose first barcode is not a QR is shown with its payload and a note that the symbol could not be encoded, because this project encodes only QR; carrying the other formats is open work in `TODO.md`.
+- A QR symbol is only useful if it scans, so the encoder is checked against libqrencode module for module, and the rendered PNG is decoded back to its payload where a decoder is installed (`tests/42-qr-encoder.sh`, `tests/96-qr-decode.sh`).
 
-- No barcode encoder exists, so `pkpass-render` shows the first barcode's format, `altText`, and payload as text rather than drawing a symbol; the rule the renderer follows is `PASS-RENDERER-R009` in the pass renderer feature, and the project's open work is tracked in `TODO.md`.
+The reference above describes more of the format than the code currently uses.
+
 - The reader does not resolve `.lproj` catalogs, and it does not read `additionalInfoFields`, `semantics`, `beacons`, `maxDistance`, or the poster and airline extras.
+- Only `http` and `https` URLs are made clickable, and only `attributedValue` is treated as markup; a plain `value` is literal text.
 
 ## Sources
 

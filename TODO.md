@@ -8,12 +8,11 @@
       tarball and prints the integration step instead. Making the two consistent
       would also mean revisiting `tests/11-release-install.sh`, whose demo
       tarball carries no `pkpass-integrate` to register with.
-* [ ] encode a barcode symbol so `pkpass-render` draws a scannable code rather
-      than the payload text.
-      — A QR encoder is the largest missing piece of a pass viewer, and the
-      limitation is documented in `documents/08-pkpass-format.md`. The symbol
-      must be verified by decoding it, not by eye, so the work includes a decoder
-      in the test.
+* [ ] encode the other barcode formats a pass may carry: PDF417, Aztec, and
+      Code 128.
+      — `pkpass-render` draws QR today, which is what almost every pass uses;
+      a pass whose first barcode is another format shows the payload and says the
+      symbol could not be encoded.
 * [ ] resolve a `.pkpasses` bundle: list the passes inside it and open one at a
       time.
       — The type is registered and opens, but `handle` treats a bundle as one
@@ -37,6 +36,23 @@
 
 ## Recently Completed
 
+* [x] draw the barcode, format the payload, and link the URLs (2026-10-10; owner
+      instruction):
+    * [x] a QR encoder written from ISO/IEC 18004: byte mode, level M, versions 1
+          to 10, the Reed-Solomon blocks, the penalty-chosen mask, and the format
+          and version information.
+    * [x] verified two independent ways: the matrix is identical to libqrencode
+          for 31 payload, version, and level combinations, and the rendered PNG
+          decodes back to the exact payload with zbar.
+    * [x] a JSON payload is shown re-indented with its own line structure, while
+          the symbol keeps encoding the original bytes.
+    * [x] `http` and `https` URLs in field values, `attributedValue` anchors, and
+          the payload are clickable; no other scheme is, so a pass cannot put a
+          `javascript:` link into the card.
+    * [x] `pkpass-render --qr-png FILE` writes the symbol as a PNG, and the GTK4
+          viewer shows it in the window.
+    * [x] feature `04` gains `PASS-RENDERER-R013`–`R017`; task `07` claims them;
+          tests `42-qr-encoder` and `96-qr-decode` cover the symbol.
 * [x] derive the project from the skeleton and keep the shared rule corpus
       intact (2026-10-10; project start):
     * [x] copied `prompts/`, `documents/`, `records/README.md`,

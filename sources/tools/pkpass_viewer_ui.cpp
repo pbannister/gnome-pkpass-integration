@@ -11,6 +11,8 @@
 // the desktop theme produced unreadable text for light passes on a dark theme.
 //
 #include "pkpass/pkpass_reader.h"
+#include "qr/qr_encoder.h"
+#include "render/pass_render.h"
 #include "util/file_io.h"
 #include "version/version.h"
 #include "zip/zip_reader.h"
@@ -27,6 +29,7 @@ namespace {
 struct state_o {
     std::string s_path;
     std::string s_logo_path;
+    std::string s_qr_path;
     std::string s_message;
 };
 
@@ -52,6 +55,27 @@ GtkWidget *make_label(const std::string &s_text, bool b_bold, bool b_wrap, const
     return p_label;
 }
 
+// A label whose text may carry links: the markup is built by the render module,
+// which escapes the text and links only http and https.
+GtkWidget *make_markup_label(const std::string &s_text, bool b_markup, bool b_bold, bool b_wrap,
+                             const char *s_class) {
+    GtkWidget *p_label = gtk_label_new(nullptr);
+    gtk_label_set_markup(GTK_LABEL(p_label),
+                         gnome_pkpass::render::viewer_markup(s_text, b_markup).c_str());
+    gtk_label_set_xalign(GTK_LABEL(p_label), 0.0F);
+    if (b_wrap) {
+        gtk_label_set_wrap(GTK_LABEL(p_label), TRUE);
+    }
+    gtk_label_set_selectable(GTK_LABEL(p_label), TRUE);
+    if (nullptr != s_class) {
+        gtk_widget_add_css_class(p_label, s_class);
+    }
+    if (b_bold) {
+        gtk_widget_add_css_class(p_label, "heading");
+    }
+    return p_label;
+}
+
 // One field: its label above its value, inside the column that group occupies.
 GtkWidget *make_field(const gnome_pkpass::pkpass::field_o &o_field) {
     GtkWidget *p_box = gtk_box_new(GTK_ORIENTATION_VERTICAL, 2);
@@ -60,7 +84,8 @@ GtkWidget *make_field(const gnome_pkpass::pkpass::field_o &o_field) {
     }
     const std::string s_value =
         o_field.s_attributed_value.empty() ? o_field.s_value : o_field.s_attributed_value;
-    gtk_box_append(GTK_BOX(p_box), make_label(s_value, false, true, nullptr));
+    gtk_box_append(GTK_BOX(p_box), make_markup_label(s_value, !o_field.s_attributed_value.empty(),
+                                                     false, true, nullptr));
     return p_box;
 }
 
@@ -99,6 +124,36 @@ const char *preferred_logo(const gnome_pkpass::zip::archive_c &o_archive) {
         }
     }
     return nullptr;
+}
+
+// Write the barcode beside the window as a PNG, so the window carries a symbol
+// a phone can scan.  The same encoder draws the SVG card.
+bool write_qr(const gnome_pkpass::pkpass::pass_o &o_pass, std::string &s_qr_path) {
+    if (o_pass.o_barcodes.empty()) {
+        return false;
+    }
+    gnome_pkpass::qr::matrix_o o_matrix;
+    std::string s_error;
+    if (!gnome_pkpass::render::encode_barcode(o_pass.o_barcodes.front(),
+                                              gnome_pkpass::qr::level_e::medium, o_matrix, s_error)) {
+        return false;
+    }
+    const std::string s_png = gnome_pkpass::qr::to_png(o_matrix, 6, 4);
+    if (s_png.empty()) {
+        return false;
+    }
+
+    gchar *s_temporary = nullptr;
+    const gint i_descriptor = g_file_open_tmp("pkpass-viewer-qr-XXXXXX.png", &s_temporary, nullptr);
+    if (0 > i_descriptor) {
+        return false;
+    }
+    ::close(i_descriptor);
+    s_qr_path = s_temporary;
+    g_free(s_temporary);
+
+    return g_file_set_contents(s_qr_path.c_str(), s_png.data(),
+                               static_cast<gssize>(s_png.size()), nullptr);
 }
 
 // Write the pass logo beside the window as a PNG, because GtkPicture reads a
@@ -188,17 +243,31 @@ GtkWidget *build_window(GtkApplication *p_application, state_o *p_state) {
 
     if (!o_pass.o_barcodes.empty()) {
         const gnome_pkpass::pkpass::barcode_o &o_barcode = o_pass.o_barcodes.front();
+        // The button copies the message as the issuer wrote it, not the
+        // re-indented form the window shows.
         p_state->s_message = o_barcode.s_message;
         gtk_box_append(GTK_BOX(p_content), gtk_separator_new(GTK_ORIENTATION_HORIZONTAL));
-        gtk_box_append(GTK_BOX(p_content),
-                       make_label(gnome_pkpass::pkpass::barcode_format_label(o_barcode.s_format) +
-                                      " barcode (not drawn)",
-                                  false, true, "dim-label"));
+
+        if (write_qr(o_pass, p_state->s_qr_path)) {
+            GtkWidget *p_picture = gtk_picture_new_for_filename(p_state->s_qr_path.c_str());
+            gtk_picture_set_can_shrink(GTK_PICTURE(p_picture), TRUE);
+            gtk_widget_set_halign(p_picture, GTK_ALIGN_CENTER);
+            gtk_box_append(GTK_BOX(p_content), p_picture);
+        } else {
+            gtk_box_append(GTK_BOX(p_content),
+                           make_label(gnome_pkpass::pkpass::barcode_format_label(o_barcode.s_format) +
+                                          " barcode could not be encoded",
+                                      false, true, "dim-label"));
+        }
+
         if (!o_barcode.s_alt_text.empty()) {
             gtk_box_append(GTK_BOX(p_content), make_label(o_barcode.s_alt_text, true, true, nullptr));
         }
+        // A JSON payload is shown re-indented; the symbol above still encodes
+        // the original bytes.
         gtk_box_append(GTK_BOX(p_content),
-                       make_label(o_barcode.s_message, false, true, "monospace"));
+                       make_label(gnome_pkpass::render::display_message(o_barcode.s_message), false,
+                                  true, "monospace"));
         GtkWidget *p_copy = gtk_button_new_with_label("Copy barcode message");
         g_signal_connect(p_copy, "clicked", G_CALLBACK(on_copy_message), p_state);
         gtk_box_append(GTK_BOX(p_content), p_copy);
@@ -236,6 +305,7 @@ void on_shutdown(GApplication *p_application, gpointer p_data) {
     (void)p_application;
     state_o *p_state = static_cast<state_o *>(p_data);
     remove_if_present(p_state->s_logo_path);
+    remove_if_present(p_state->s_qr_path);
 }
 
 }  // namespace

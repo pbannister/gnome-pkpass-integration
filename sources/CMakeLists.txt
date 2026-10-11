@@ -44,9 +44,13 @@ add_library(pkpass_reader STATIC
 target_include_directories(pkpass_reader PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}")
 target_link_libraries(pkpass_reader PUBLIC zip_reader json_value crypto file_util)
 
+add_library(qr_encoder STATIC qr/qr_encoder.cpp)
+target_include_directories(qr_encoder PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}")
+target_link_libraries(qr_encoder PUBLIC ZLIB::ZLIB)
+
 add_library(pass_render STATIC render/pass_render.cpp)
 target_include_directories(pass_render PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}")
-target_link_libraries(pass_render PUBLIC pkpass_reader zip_reader file_util)
+target_link_libraries(pass_render PUBLIC pkpass_reader zip_reader file_util qr_encoder)
 
 add_library(integration STATIC integration/handler_integrator.cpp)
 target_include_directories(integration PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}")
@@ -71,8 +75,8 @@ if(PkgConfig_FOUND)
 endif()
 if(TARGET PkgConfig::GTK4)
     add_executable(pkpass-viewer tools/pkpass_viewer_ui.cpp)
-    target_link_libraries(pkpass-viewer PRIVATE PkgConfig::GTK4 pkpass_reader zip_reader
-        file_util version_info)
+    target_link_libraries(pkpass-viewer PRIVATE PkgConfig::GTK4 pkpass_reader pass_render
+        qr_encoder zip_reader file_util version_info)
 else()
     message(STATUS "GTK4 development files not found: pkpass-viewer is not built")
 endif()
@@ -93,6 +97,9 @@ target_link_libraries(pkpass-reader-test PRIVATE pkpass_reader zip_reader file_u
 
 add_executable(pass-render-test "${CMAKE_CURRENT_SOURCE_DIR}/../tests/pass_render_test.cpp")
 target_link_libraries(pass-render-test PRIVATE pass_render pkpass_reader)
+
+add_executable(qr-encoder-test "${CMAKE_CURRENT_SOURCE_DIR}/../tests/qr_encoder_test.cpp")
+target_link_libraries(qr-encoder-test PRIVATE qr_encoder)
 
 add_executable(handler-integrator-test
     "${CMAKE_CURRENT_SOURCE_DIR}/../tests/handler_integrator_test.cpp")
