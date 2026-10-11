@@ -81,6 +81,19 @@
           present, with `handle` falling back to printed commands.
     * [x] feature `06-command-line-tools.md`, task `05`, and test
           `60-command-line-tools`.
+* [x] make `make install` register the handler (2026-10-10; owner instruction):
+    * [x] `scripts/program-install.sh` now ends by running the freshly installed
+          `pkpass-integrate handler install`, so the desktop entry names the
+          installed program rather than one in the build tree.
+    * [x] `PKPASS_INTEGRATION_NO_HANDLER=1` installs the programs and registers
+          nothing, and `pkpass-integrate handler uninstall` reverses a
+          registration.
+    * [x] a registration that cannot happen leaves the programs installed, prints
+          why, and exits nonzero, so an unattended install cannot report success
+          with the association missing.
+    * [x] `tests/91-install-handler.sh` covers all three cases against a
+          throwaway `HOME` and prefix; feature `05` gains `PKPASS-HANDLER-R021`
+          and task `06` claims it.
 * [x] verify the GTK4 viewer instead of only reviewing it (2026-10-10):
     * [x] the GTK4 development files were installed on the build host, so the
           viewer target builds; its source compiles clean under the project's

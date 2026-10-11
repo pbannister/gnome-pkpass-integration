@@ -29,6 +29,7 @@ every change.
 - `PKPASS-HANDLER-R018` — `handle FILE` must fail when the file does not exist.
 - `PKPASS-HANDLER-R019` — Nothing in the integration may require root, and no path outside `$XDG_DATA_HOME`, `$XDG_CONFIG_HOME`, and the temporary directory may be written.
 - `PKPASS-HANDLER-R020` — No public interface may throw.
+- `PKPASS-HANDLER-R021` — `scripts/program-install.sh`, which `make install` runs, must register the handler after installing the programs, unless `PKPASS_INTEGRATION_NO_HANDLER` is set to `1`; when registration fails it must report why, leave the installed programs in place, and exit nonzero.
 
 ## Behavior
 
@@ -37,6 +38,9 @@ every change.
 - Given a definition the project created, uninstall removes it.
 - Given no record, `handler uninstall` exits nonzero.
 - Given no display and no viewer, `handle` prints the `pkpass-inspect` and `pkpass-render` commands and exits zero.
+- Given `make install`, the installed programs are followed by a registered handler whose entry runs the installed `pkpass-integrate`, so a pass opens without a second command.
+- Given `PKPASS_INTEGRATION_NO_HANDLER=1`, `make install` installs the programs and registers nothing.
+- Given an install where the handler cannot be registered, the programs are installed, the reason is printed, and the command exits nonzero.
 
 ## Dependencies
 

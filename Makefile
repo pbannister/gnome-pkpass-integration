@@ -21,7 +21,10 @@
 #		        the homelab project (homelab-publish; see the homelab's
 #		        documents/09-project-pages-conventions.md). This target
 #		        only reminds you of that; use the homelab's make deploy.
-#		install: sh scripts/program-install.sh (prefix defaults to $HOME/.local)
+#		install: sh scripts/program-install.sh (prefix defaults to $HOME/.local);
+#		        the installer also registers the handler, which
+#		        PKPASS_INTEGRATION_NO_HANDLER=1 skips and
+#		        `pkpass-integrate handler uninstall` reverses
 #		release: build, stage into bin/, check the version names this commit,
 #		        then sh scripts/release-package.sh (the files a release
 #		        publishes)

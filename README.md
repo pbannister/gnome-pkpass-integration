@@ -31,16 +31,21 @@ absent. Both points are recorded in `TODO.md`.
 
 ## Installing
 
-`make install` installs the tools into `$HOME/.local` (`PREFIX` overrides).
+`make install` installs the tools into `$HOME/.local` (`PREFIX` overrides) and
+then registers the handler, so a downloaded pass opens as soon as the install is
+done.
 
-Registering the handler is a separate, deliberate step, because it changes what
-opens a file type:
+Registration changes what opens a file type, so it is skippable and reversible:
 
 ```sh
-pkpass-integrate handler install     # register pkpass and pkpasses with this project
-pkpass-integrate handler status      # show what each type opens, and what this project installed
-pkpass-integrate handler uninstall   # restore what opened them before
+PKPASS_INTEGRATION_NO_HANDLER=1 make install   # install the tools, register nothing
+pkpass-integrate handler status                # show what each type opens, and what this project installed
+pkpass-integrate handler uninstall             # restore what opened them before
 ```
+
+An install that cannot register the handler still installs the tools; it prints
+the reason and exits nonzero, so a scripted install never reports success with
+the association missing.
 
 The install writes only under `$XDG_DATA_HOME`, `$XDG_CONFIG_HOME`, and the
 temporary directory, and never needs root.
@@ -108,7 +113,7 @@ define the type and its definition is not this project's to lose.
 ## Building and Testing
 
 - `make build` configures and compiles the readers, the renderer, the integration, and the tools into `dataflow.out/build/`.
-- `make install` installs `pkpass-inspect`, `pkpass-render`, and `pkpass-integrate` into `$HOME/.local/bin` (`PREFIX` overrides), with the icon.
+- `make install` installs `pkpass-inspect`, `pkpass-render`, and `pkpass-integrate` (and `pkpass-viewer` where GTK4 is present) into `$HOME/.local/bin` (`PREFIX` overrides), with the icon, and registers the handler; `PKPASS_INTEGRATION_NO_HANDLER=1` skips the registration.
 - `make test` runs every test in `tests/` and writes a timestamped log to `logs/`.
 - `make site` builds the published page set, then runs the sanitization gate over `site.out/` (`make check` runs the gate alone).
 - `make release` builds, stages the programs into `dataflow.out/build/bin/`, checks that the version names the current commit, and writes the release assets into `dataflow.out/release/`.
