@@ -11,6 +11,10 @@ These conventions define formatting, naming, and repository structure.
     - `03-generated-data-products.md`
     - `04-release-and-publishing.md`
     - `05-pinned-dependencies.md`
+    - `06-execution-boundary.md`
+    - `07-session-log.md`
+    - `08-delegation-authority.md`
+    - `09-failure-attribution.md`
 
 ## 1. Formatting
 
@@ -114,8 +118,19 @@ Generated output directories are not version-controlled.
 - Run the publish sanitization gate (`scripts/leak-gate.sh`) over generated output before publishing.
 - Keep the sanitization patterns in one source (`scripts/sensitive-patterns.sh`) and never inline them in another script or test.
 - A served static asset is requested under a URL that changes when its bytes change: derive one content token from the interdependent asset set and append it to every URL, including transitive module imports; fail the build when the stamp does not land.
-- Keep `PHASES.md` current: it names the project's phases and the current phase, one `Current: phase N — [description —] state` line; change the current phase only when committing the project.
 - Committed tool configuration uses workspace-relative paths (for example `${workspaceFolder}`), never an absolute home path; an absolute path is both a leak and a portability bug.
+
+## 6.1 Third-Party Checkouts
+
+A cloned third-party repository is host material, not project material.
+It is an input a task may read, never a directory the project commits.
+
+- Clone a third-party repository under the host checkout root `$HOME/sources/`, never inside the project working tree.
+- The host checkout root is a host path and is not the repository's `sources/` directory; the two share a name and nothing else.
+- Write it environment-relative as `$HOME/sources/`; a literal absolute home path is refused by the committed-path rule in `prompts/01-contract.md` section 7.
+- A project whose host checkout root differs declares it in its project section.
+- Pin a checkout the project depends on, per `prompts/capabilities/05-pinned-dependencies.md`.
+- A checkout found inside the working tree is a defect: move it to the host checkout root and remove the in-tree copy.
 
 ## 7. File Operations
 
@@ -145,5 +160,5 @@ A script must complete without a human at the terminal.
 
 ## 8. Output
 
-- The output rules are in `prompts/01-contract.md` section 5; the scope rules are in `prompts/common/02-universal-rules.md`.
+- The output rules are in `prompts/01-contract.md` section 5; the scope rules are in `prompts/common/01-universal-rules.md`.
 - Praise and affirmation filler are output defects: they raise confidence without adding information.

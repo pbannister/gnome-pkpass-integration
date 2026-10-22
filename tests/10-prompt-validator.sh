@@ -36,23 +36,86 @@ fail() {
 
 # reset: a clean, committed copy of the repository to mutate. Committing it
 # lets the validator's tracked-root and tool-config checks run.
+#
+# The copy is built from `git ls-files`, not from the working tree, because the
+# validator only ever reads tracked files and a working tree can be enormous:
+# one project carries 3.9 GB of ignored research evidence, and copying it once
+# per case (54 times) made a ten-minute suite out of a half-megabyte fixture.
+# `--ignore-failed-read` covers a path that is tracked but absent locally, which
+# must not abort the fixture build.
 reset() {
     rm -rf "$DIRECTORY_ROOT"
     mkdir -p "$DIRECTORY_ROOT"
-    (cd "$REPOSITORY_ROOT" && tar --exclude=./.git --exclude=./site.out \
-        --exclude=./dataflow.out --exclude=./logs -cf - .) \
+    (cd "$REPOSITORY_ROOT" && git ls-files -z \
+        | tar --null -T - --ignore-failed-read -cf -) \
         | (cd "$DIRECTORY_ROOT" && tar -xf -)
+    # The adversarial cases mutate a feature and a task with known shape. Using
+    # the project's own corpus made this corpus non-portable: a project that does
+    # not model its site build as a feature failed every case for a reason that
+    # had nothing to do with the checks under test. The fixture is synthesized
+    # every time, under reserved numbers (89-) and reserved identifiers
+    # (FIXTURE-R), so it cannot collide with the project's corpus or drift with it.
+    mkdir -p "$DIRECTORY_ROOT/prompts/features" "$DIRECTORY_ROOT/prompts/tasks"
+    cat > "$DIRECTORY_ROOT/prompts/features/89-site-build.md" <<'FIXTURE_FEATURE'
+# Feature: Site Build
+
+## Purpose
+
+The site build generates the static site.
+
+## Requirements
+
+- `FIXTURE-R001` - `scripts/site-build.sh` must generate `site.out/` from `site.in/`.
+- `FIXTURE-R002` - Generated output must be identified as generated.
+
+## Behavior
+
+- Running `make site` recreates `site.out/` from `site.in/`.
+
+## Dependencies
+
+- None.
+FIXTURE_FEATURE
+    cat > "$DIRECTORY_ROOT/prompts/tasks/89-site-build-implement.md" <<'FIXTURE_TASK'
+# Task: Implement the Site Build feature
+
+## TASK-DESCRIPTION
+- Create: `scripts/site-build.sh`
+
+Implement the requirements in `prompts/features/89-site-build.md`.
+
+## TASK-OUTPUT
+* Report the created file and the `make test` result.
+* End with the `VERIFICATION:` line.
+
+## TASK-FILES
+
+| Operation | Path |
+|---|---|
+| create | `scripts/site-build.sh` |
+
+## TASK-VERIFY
+- Run: `make test` from the repository root.
+- Expected: exit status 0.
+
+## TASK-FEATURES
+- `prompts/features/89-site-build.md`
+
+## TASK-ACCEPTANCE
+- `FIXTURE-R001`
+
+OUTPUT: the created file and the `make test` result, ending with the `VERIFICATION:` line.
+FIXTURE_TASK
     git -C "$DIRECTORY_ROOT" init -q
     git -C "$DIRECTORY_ROOT" add -A
 }
 
-FILE_TASK="$DIRECTORY_ROOT/prompts/tasks/01-site-build-implement.md"
+FILE_TASK="$DIRECTORY_ROOT/prompts/tasks/89-site-build-implement.md"
 FILE_WORKFLOW="$DIRECTORY_ROOT/prompts/02-workflow.md"
 FILE_CONTRACT="$DIRECTORY_ROOT/prompts/01-contract.md"
-FILE_FEATURE="$DIRECTORY_ROOT/prompts/features/01-site-build.md"
+FILE_FEATURE="$DIRECTORY_ROOT/prompts/features/89-site-build.md"
 FILE_FEATURE_02="$DIRECTORY_ROOT/prompts/features/02-project-pages.md"
 FILE_EPISODE="$DIRECTORY_ROOT/prompts/episodes/01-episode-template.md"
-FILE_PHASES="$DIRECTORY_ROOT/PHASES.md"
 
 count_case=0
 count_accept=0
@@ -148,13 +211,13 @@ expect_reject 10 'unknown acceptance identifier' 'unknown identifier'
 reset; sed -i '/^## TASK-ACCEPTANCE$/a - `PROJECT-PAGES-R001`' "$FILE_TASK"
 expect_reject 10 'acceptance from a feature not in TASK-FEATURES' 'not in TASK-FEATURES'
 
-reset; sed -i 's#`01-site-build.md`#`conventions`#' "$FILE_FEATURE_02"
+reset; sed -i '/^## Dependencies$/a - `conventions`' "$FILE_FEATURE"
 expect_reject 10 'a dependency that is not a feature file' 'feature dependency is not a feature file'
 
-reset; sed -i 's#`01-site-build.md`#`99-missing.md`#' "$FILE_FEATURE_02"
+reset; sed -i '/^## Dependencies$/a - `99-missing.md`' "$FILE_FEATURE"
 expect_reject 10 'unresolved feature dependency' 'feature dependency does not resolve'
 
-reset; sed -i '/^## Requirements$/a - `SITE-BUILD-R001` A duplicate of the first requirement.' "$FILE_FEATURE"
+reset; sed -i '/^## Requirements$/a - `FIXTURE-R001` A duplicate of the first requirement.' "$FILE_FEATURE"
 expect_reject 10 'duplicate requirement identifier' 'duplicate requirement identifier'
 
 reset; sed -i '/^## Requirements$/a - A new unnamed requirement.' "$FILE_FEATURE"
@@ -166,19 +229,19 @@ expect_reject 10 'feature without requirement identifiers' 'no requirement ident
 reset; sed -i '/^## TASK-ACCEPTANCE$/,/^OUTPUT:/{/^- `/d}' "$FILE_TASK"
 expect_reject 10 'TASK-ACCEPTANCE without identifiers' 'TASK-ACCEPTANCE has no requirement identifiers'
 
-reset; sed -i '/^## TASK-FEATURES$/d; /^\- `prompts\/features\/01-site-build.md`$/d' "$FILE_TASK"
+reset; sed -i '/^## TASK-FEATURES$/d; /^\- `prompts\/features\/89-site-build.md`$/d' "$FILE_TASK"
 expect_reject 10 'TASK-ACCEPTANCE without TASK-FEATURES' 'has TASK-ACCEPTANCE but no TASK-FEATURES'
 
-reset; sed -i '/^## TASK-FEATURES$/d; /^\- `prompts\/features\/01-site-build.md`$/d; /^## TASK-ACCEPTANCE$/d; /^- `SITE-BUILD-R/d' "$FILE_TASK"
+reset; sed -i '/^## TASK-FEATURES$/d; /^\- `prompts\/features\/89-site-build.md`$/d; /^## TASK-ACCEPTANCE$/d; /^- `FIXTURE-R/d' "$FILE_TASK"
 expect_reject 10 'feature referenced but no TASK-FEATURES' 'references a feature but has no TASK-FEATURES'
 
-reset; sed -i '/^## TASK-ACCEPTANCE$/d; /^- `SITE-BUILD-R/d' "$FILE_TASK"
+reset; sed -i '/^## TASK-ACCEPTANCE$/d; /^- `FIXTURE-R/d' "$FILE_TASK"
 expect_reject 10 'TASK-FEATURES without TASK-ACCEPTANCE' 'has TASK-FEATURES but no TASK-ACCEPTANCE'
 
-reset; sed -i 's#`prompts/features/01-site-build.md`#`prompts/03-conventions.md`#' "$FILE_TASK"
+reset; sed -i 's#`prompts/features/89-site-build.md`#`prompts/03-conventions.md`#' "$FILE_TASK"
 expect_reject 10 'TASK-FEATURES lists a non-feature' 'TASK-FEATURES must list feature files'
 
-reset; sed -i 's#`prompts/features/01-site-build.md`#`prompts/features/99-missing.md`#' "$FILE_TASK"
+reset; sed -i 's#`prompts/features/89-site-build.md`#`prompts/features/99-missing.md`#' "$FILE_TASK"
 expect_reject 10 'TASK-FEATURES lists a missing feature' 'TASK-FEATURES names a missing feature'
 
 # --- checks 1, 2, 3, 8, 11: corpus and registry ---
@@ -197,10 +260,10 @@ expect_reject 8 'unregistered universal rule file' 'not in the contract section 
 reset; printf '%s\n' '- Change only what the task requires.' >> "$FILE_WORKFLOW"
 expect_reject 11 'duplicated authoritative rule' 'duplicated in'
 
-reset; sed -i '/Change only what the task requires/d' "$DIRECTORY_ROOT/prompts/common/02-universal-rules.md"
+reset; sed -i '/Change only what the task requires/d' "$DIRECTORY_ROOT/prompts/common/01-universal-rules.md"
 expect_reject 11 'a rule-family marker removed from its owner' 'marker not found in'
 
-# --- checks 6, 6.1, 7: features, episodes, phases ---
+# --- checks 6, 6.1: features, episodes ---
 reset; sed -i '/^## Purpose$/d' "$FILE_FEATURE"
 expect_reject 6 'feature missing a required section' 'missing ## Purpose'
 
@@ -213,30 +276,25 @@ expect_reject 6.1 'episode missing acceptance' 'missing ## EPISODE-ACCEPTANCE'
 reset; sed -i '/^## EPISODE-ACCEPTANCE$/,/^## EPISODE-RISKS$/{/^- /d}' "$FILE_EPISODE"
 expect_reject 6.1 'episode acceptance without criteria' 'EPISODE-ACCEPTANCE has no criteria'
 
-reset; rm "$FILE_PHASES"
-expect_reject 7 'missing PHASES.md' 'PHASES.md is missing'
-
-reset; sed -i '/^Current:/d' "$FILE_PHASES"
-expect_reject 7 'PHASES.md without a Current line' "no 'Current: phase N"
-
-# The fixture rewrites whatever the current phase line is, so it works in a
-# project at any phase rather than only in one that has not started.
-reset; sed -i 's/^Current: .*/Current: phase 1 — in-progress/' "$FILE_PHASES"
-expect_reject 7 'invalid phase state' 'invalid phase state'
-
 # --- check 9: root structure and portable tool configuration ---
+#
+# A fixture must be tracked for the structure checks to see it. `git add -f` is
+# deliberate: a project may ignore these very names for good reasons -- one
+# project ignores `config.json` because it holds a device password -- and an
+# ignored fixture would make the case pass for the wrong reason, silently. The
+# force applies to the fixture only, never to the project's whole tree.
 reset; printf '%s\n' 'x' > "$DIRECTORY_ROOT/NOTES.md"
+git -C "$DIRECTORY_ROOT" add -f NOTES.md
 expect_reject 9 'stray root file' 'root file is not permitted'
 
 reset; mkdir -p "$DIRECTORY_ROOT/.undocumented"
 printf '%s\n' 'x' > "$DIRECTORY_ROOT/.undocumented/config.json"
+git -C "$DIRECTORY_ROOT" add -f .undocumented/config.json
 expect_reject 9 'undeclared tool directory' 'tool directory is not permitted'
 
-# This project ignores .vscode/ (see .gitignore), so an absolute path written
-# there would not be committed tool configuration and the check would rightly
-# skip it.  The fixture uses .aider.conf.yml instead: it is tracked, and the
-# check covers it under the same rule.
-reset; printf '%s\n' 'read:' '  - /home/someone/sources' > "$DIRECTORY_ROOT/.aider.conf.yml"
+reset; mkdir -p "$DIRECTORY_ROOT/.vscode"
+printf '%s\n' '{ "path": "/home/someone/sources" }' > "$DIRECTORY_ROOT/.vscode/settings.json"
+git -C "$DIRECTORY_ROOT" add -f .vscode/settings.json
 expect_reject 9 'absolute home path in tool configuration' 'absolute home path'
 
 # --- checks 9.1, 9.2, 11: the agent entry point and unattended scripts ---
@@ -265,13 +323,25 @@ expect_reject 12 'a task authorizing a version-control path' 'authorizes a prote
 reset; sed -i 's#`scripts/site-build.sh`#`logs/session.log`#' "$FILE_TASK"
 expect_reject 12 'a task authorizing generated output' 'authorizes a protected path'
 
+# --- check 13: capability registry ---
+reset; sed -i '/^    - `06-execution-boundary.md`$/d' "$DIRECTORY_ROOT/prompts/03-conventions.md"
+expect_reject 13 'capability convention missing from Applicability' 'not listed in the Applicability section'
+
+# --- check 14: undeclared top-level directories ---
+reset; mkdir -p "$DIRECTORY_ROOT/llama.cpp"
+printf '%s\n' 'A third-party checkout inside the working tree.' > "$DIRECTORY_ROOT/llama.cpp/README.md"
+expect_reject 14 'a third-party checkout inside the working tree' 'top-level directory is not permitted'
+
 # --- acceptance cases: the validator must not reject a valid variation ---
-# Feature 02 depends on feature 01, so a task that lists 02 may claim a
-# requirement owned by 01: dependencies apply transitively.
-reset; sed -i 's#`prompts/features/01-site-build.md`#`prompts/features/02-project-pages.md`#' "$FILE_TASK"
+# The fixture feature is made a dependency of feature 02, so a task that lists 02
+# may claim a requirement owned by the fixture: dependencies apply transitively.
+# The dependency is added here rather than assumed, because the shared feature no
+# longer names a project-specific one.
+reset; sed -i '/^## Dependencies$/a - `89-site-build.md`' "$FILE_FEATURE_02"
+sed -i 's#`prompts/features/89-site-build.md`#`prompts/features/02-project-pages.md`#' "$FILE_TASK"
 expect_accept 'acceptance reachable through a feature dependency'
 
-reset; cat > "$DIRECTORY_ROOT/prompts/features/99-eval-sample.md" <<'EOF'
+reset; cat > "$DIRECTORY_ROOT/prompts/features/90-eval-sample.md" <<'EOF'
 # Feature: Eval Sample
 
 ## Purpose

@@ -27,6 +27,22 @@ authoritative file governs (`prompts/01-contract.md` section 2).
   result, and the working-tree state, in one screen.
 - `make site`, `make release`, `make install` — see the `Makefile`.
 
+## Shared Rules
+
+- `rules.lock` records which `00-project-rules` version these rules came from.
+- The files it lists are vendored. Do not edit them here: a rule change belongs
+  in `00-project-rules`, followed by a version bump and an upgrade that records
+  the result. A project-specific rule goes in a local prompt file numbered after
+  the shared ones; an override quotes the rule it replaces, so a later version
+  can tell when the override has gone stale.
+- `prompts/10-project.md` declares the root files this project keeps that the
+  shared rules cannot know about.
+- `tests/lib/test_helpers.sh` is vendored; this project's additions live in
+  `tests/lib/project_helpers.sh`, which the shared helper sources.
+- `make test` runs `scripts/rules-check.sh`, which fails on an edited vendored
+  file, a local file that restates shared text, or a deviation whose quoted rule
+  has moved.
+
 ## Tool-Specific Files
 
 - A tool-specific file (`.aider.conf.yml`, `CLAUDE.md`,

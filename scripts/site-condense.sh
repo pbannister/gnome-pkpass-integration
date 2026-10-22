@@ -168,7 +168,7 @@ first_heading() {
 }
 
 # flat_name: turn a repo-relative path into a flat output basename,
-# e.g. prompts/common/02-universal-rules.md -> prompts-common-02-universal-rules
+# e.g. prompts/common/01-universal-rules.md -> prompts-common-02-universal-rules
 flat_name() {
     printf '%s' "$1" | sed 's/\.md$//; s|/|-|g'
 }

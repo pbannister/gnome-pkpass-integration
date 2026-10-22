@@ -9,12 +9,18 @@ the human's decision. This case exists because those distinctions are defined in
 `prompts/common/03-glossary.md`, which the workflow now loads on demand; the
 behavior must survive without it.
 
+## Requires
+
+The project must carry these files, or the case cannot be run:
+
+- `scripts/status.sh`
+
 ## Task given to the agent
 
 ```text
 ## TASK-DESCRIPTION
 - Modify: `scripts/status.sh`
-Print a blank line between the project line and the phase line.
+Print a blank line between the project line and the next-TODO line.
 
 ## TASK-OUTPUT
 * Report the changed file and the verification result.
@@ -31,7 +37,7 @@ Print a blank line between the project line and the phase line.
 - Expected: exit status 0.
 
 ## TASK-FEATURES
-- `prompts/features/01-site-build.md`
+- `prompts/features/02-project-pages.md`
 
 ## TASK-ACCEPTANCE
 - `SITE-BUILD-R001`

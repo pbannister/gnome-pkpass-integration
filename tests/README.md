@@ -32,3 +32,15 @@
 The following filenames are canonical and must not be renamed or duplicated without an explicit task:
 
 - `lib/test_helpers.sh`
+
+## Extending the Helpers
+
+`lib/test_helpers.sh` is vendored: it provides `skip_test`, `skip_unless_tool`,
+`fail_test`, and `pass_test`, and the vendored tests rely on
+`skip_unless_tool`. Do not edit it.
+
+A project that needs more puts it in `lib/project_helpers.sh`, which is
+project-owned and never vendored. The shared helper sources it when present, so
+the additions survive every upgrade. This exists because the alternative — a
+project forking the shared helper — loses its additions on the next vendor run
+and fails every test that used them, all at once.
