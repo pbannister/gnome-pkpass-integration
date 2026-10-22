@@ -183,13 +183,12 @@ Human contributors should begin by reading:
 - `prompts/README.md`
 - `documents/README.md`
 
-The prompt corpus is kept in step with the project skeleton: `prompts/`,
-`records/README.md`, `tests/README.md`, and the shared documents are copies of
-the skeleton's files, and a project customises one by appending a
-`## How this project does it` section rather than by editing the shared text.
-Run `sh scripts/skeleton-diff.sh ~/work/gnome-pkpass-integration` from the
-skeleton to see any drift; `tests/09-prompt-contract.sh` validates the corpus
-itself.
+The prompt corpus is pinned, not copied: `rules.lock` records the
+`00-project-rules` version and a digest per vendored file, and
+`scripts/rules-check.sh` fails when one is edited. Customise by extending — a
+project-specific rule goes in a local prompt file numbered after the shared
+ones — rather than by editing shared text, which the check treats as drift.
+`tests/09-prompt-contract.sh` validates the corpus itself.
 
 ## For the LLM
 
