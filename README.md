@@ -34,6 +34,17 @@ GTK4 development files are absent.
 
 ## Installing
 
+A release can be installed with one command:
+
+```sh
+curl -fsSL https://raw.githubusercontent.com/pbannister/gnome-pkpass-integration/master/scripts/install.sh | sh
+```
+
+The script fetches the release tarball for this machine, checks it against the
+release's `SHA256SUMS`, installs into `$HOME/.local`, and registers the handler.
+`PREFIX` installs elsewhere, `VERSION` pins a release tag, and where no prebuilt
+build exists for the machine it builds from the source archive instead.
+
 `make install` installs the tools into `$HOME/.local` (`PREFIX` overrides) and
 then registers the handler, so a downloaded pass opens as soon as the install is
 done.
@@ -46,9 +57,10 @@ pkpass-integrate handler status                # show what each type opens, and 
 pkpass-integrate handler uninstall             # restore what opened them before
 ```
 
-An install that cannot register the handler still installs the tools; it prints
-the reason and exits nonzero, so a scripted install never reports success with
-the association missing.
+A `make install` that cannot register the handler still installs the tools; it
+prints the reason and exits nonzero, so a scripted install never reports success
+with the association missing. The release installer reports a failed
+registration and leaves the tools in place.
 
 The install writes only under `$XDG_DATA_HOME`, `$XDG_CONFIG_HOME`, and the
 temporary directory, and never needs root.
@@ -124,6 +136,7 @@ define the type and its definition is not this project's to lose.
 - `make maturity` scores the machine-checkable subset of the prompt-maturity rubric.
 - `make site` builds the published page set, then runs the sanitization gate over `site.out/` (`make check` runs the gate alone).
 - `make release` builds, stages the programs into `dataflow.out/build/bin/`, checks that the version names the current commit, and writes the release assets into `dataflow.out/release/`.
+- `make release-publish` builds from the commit being released, tags it, and creates or updates the GitHub release with the tarball and its checksum; it needs the GitHub CLI. Without `TAG`, the tag is `v<date>-<branch>` (for example `v2026-10-23-master`); a tag already on the commit is reused, and an explicit `TAG` overrides it.
 - `make clean` removes generated output.
 
 The C++ build uses CMake with the highest warning level and treats warnings as

@@ -30,6 +30,8 @@
 #		release: build, stage into bin/, check the version names this commit,
 #		        then sh scripts/release-package.sh (the files a release
 #		        publishes)
+#		release-publish: sh scripts/release-publish.sh (tag and publish the
+#		        package as a GitHub release; needs the GitHub CLI)
 #
 
 all: build
@@ -79,4 +81,7 @@ release:
 	sh scripts/release-gate.sh "$$(cat dataflow.out/build/VERSION)"
 	sh scripts/release-package.sh
 
-.PHONY: all build site state status maturity context check clean test deploy install release
+release-publish:
+	sh scripts/release-publish.sh
+
+.PHONY: all build site state status maturity context check clean test deploy install release release-publish

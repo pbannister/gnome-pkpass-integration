@@ -127,9 +127,11 @@ curl -fsSL https://raw.githubusercontent.com/$REPOSITORY_SLUG/master/scripts/ins
 \`\`\`
 
 The script takes the tarball from this release, checks it against
-\`SHA256SUMS\`, and installs into \`\$HOME/.local\`. Set \`PREFIX\` to install
-elsewhere, or \`VERSION\` to a tag to pin one. System integration stays a
-deliberate step the script prints rather than performs.
+\`SHA256SUMS\`, installs into \`\$HOME/.local\`, and registers the Wallet
+handler. Set \`PREFIX\` to install elsewhere, \`VERSION\` to a tag to pin one, or
+\`PKPASS_INTEGRATION_NO_HANDLER=1\` to install the tools without registering
+the handler. The registration writes only under the user's XDG directories and
+never needs root.
 
 ## What is in the tarball
 

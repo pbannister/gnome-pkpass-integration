@@ -2,12 +2,6 @@
 
 ## Open Questions
 
-* [ ] decide whether `scripts/install.sh`, the release installer, should
-      register the handler as `make install` now does.
-      — The owner's instruction named `make install`; the release path takes a
-      tarball and prints the integration step instead. Making the two consistent
-      would also mean revisiting `tests/11-release-install.sh`, whose demo
-      tarball carries no `pkpass-integrate` to register with.
 * [ ] encode the other barcode formats a pass may carry: PDF417, Aztec, and
       Code 128.
       — `pkpass-render` draws QR today, which is what almost every pass uses;
@@ -34,6 +28,22 @@
       `prompts/episodes/02-episode-plan.md`.
 
 ## Recently Completed
+
+* [x] make the release installer a one-line install and add a publish target
+      (2026-10-23; owner instruction):
+    * [x] `scripts/install.sh` now defaults to `pbannister/gnome-pkpass-integration`
+      and the project asset name, so the documented `curl … | sh` needs no
+      environment variables.
+    * [x] the release installer registers the handler like `make install`, with
+      `PKPASS_INTEGRATION_NO_HANDLER=1` to decline it.
+    * [x] where no prebuilt build matches the machine, the installer builds from
+      the source archive unless `PKPASS_INTEGRATION_NO_BUILD=1`.
+    * [x] `make release-publish` and `scripts/release-publish.sh` tag the commit
+      and create or update the GitHub release.
+    * [x] `tests/08-release-publish.sh` covers the tag, push, re-upload, dirty
+      tree, wrong-commit tag, and missing remote decisions with a stub `gh`.
+    * [x] `tests/11-release-install.sh` covers the default repository URL, the
+      handler registration, and the opt-out.
 
 * [x] re-sync with the project skeleton (2026-10-11):
     * [x] took the skeleton's byte-identical rule files as they are: the
