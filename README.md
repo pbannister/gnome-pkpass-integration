@@ -259,3 +259,7 @@ The following filenames are canonical and must not be renamed or duplicated with
 - `.gitignore`
 
 Tool-specific root files (for example `.aider.conf.yml`, `.aiderignore`) are permitted when a file under `tools/` declares them; see `prompts/01-contract.md` section 7.
+
+## License
+
+MIT. See [LICENSE](LICENSE).
