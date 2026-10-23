@@ -24,8 +24,9 @@ application that opens the two Wallet MIME types.
 Everything the desktop does is also a command line.
 
 **Status: phase 4 — the reader, the renderer, the handler, and the tools are
-complete and `make test` passes; the page set and a release are still to be
-published.**
+complete and `make test` passes; release `v2026-10-23-master` is published at
+<https://github.com/pbannister/gnome-pkpass-integration/releases/latest>, and
+the page set is still to be published.**
 The barcode is drawn as a real QR symbol, encoded from the message bytes at
 error correction level M; the payload below it is re-indented when it is JSON,
 and an `http` or `https` URL in a field or in the payload is clickable. The
